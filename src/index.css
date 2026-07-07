@@ -1,0 +1,181 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #020617;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #1e293b;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #334155;
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #10b981 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Slow pulse animation */
+@keyframes pulse-slow {
+  0%, 100% { opacity: 0.4; transform: scale(1); }
+  50% { opacity: 0.7; transform: scale(1.05); }
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 6s ease-in-out infinite;
+}
+
+/* Gradient shift for glow effects */
+@keyframes gradient-shift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.animate-gradient-shift {
+  background-size: 200% 200%;
+  animation: gradient-shift 4s ease infinite;
+}
+
+/* 3D Floating Shapes */
+.floating-shapes .shape {
+  position: absolute;
+  opacity: 0.08;
+  filter: blur(1px);
+}
+
+.dark .floating-shapes .shape {
+  opacity: 0.12;
+}
+
+.shape-cube {
+  top: 15%;
+  right: 8%;
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #6366f1, #8b5cf6);
+  border-radius: 12px;
+  animation: float-3d 8s ease-in-out infinite;
+  transform-style: preserve-3d;
+}
+
+.shape-ring {
+  bottom: 20%;
+  left: 5%;
+  width: 100px;
+  height: 100px;
+  border: 3px solid #10b981;
+  border-radius: 50%;
+  animation: float-3d 10s ease-in-out infinite reverse;
+}
+
+.shape-sphere {
+  top: 40%;
+  left: 12%;
+  width: 60px;
+  height: 60px;
+  background: radial-gradient(circle at 30% 30%, #a78bfa, #6366f1);
+  border-radius: 50%;
+  animation: float-3d 7s ease-in-out infinite 1s;
+}
+
+.shape-pyramid {
+  bottom: 30%;
+  right: 15%;
+  width: 0;
+  height: 0;
+  border-left: 40px solid transparent;
+  border-right: 40px solid transparent;
+  border-bottom: 70px solid rgba(16, 185, 129, 0.6);
+  animation: float-3d 9s ease-in-out infinite 0.5s;
+}
+
+@keyframes float-3d {
+  0%, 100% {
+    transform: translateY(0) rotateX(0deg) rotateY(0deg);
+  }
+  25% {
+    transform: translateY(-20px) rotateX(15deg) rotateY(45deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateX(-10deg) rotateY(90deg);
+  }
+  75% {
+    transform: translateY(-25px) rotateX(10deg) rotateY(135deg);
+  }
+}
+
+/* Interest card 3D hover */
+.interest-card {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s;
+}
+
+/* Project card 3D lift */
+.project-card-3d {
+  transform-style: preserve-3d;
+  transition: transform 0.4s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.4s;
+}
+
+.project-card-3d:hover {
+  transform: translateY(-8px) rotateX(2deg);
+}
+
+/* Section reveal helper */
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Mesh gradient background overlay */
+.mesh-bg {
+  background-image:
+    radial-gradient(at 40% 20%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(16, 185, 129, 0.06) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(139, 92, 246, 0.06) 0px, transparent 50%);
+}
+
+.dark .mesh-bg {
+  background-image:
+    radial-gradient(at 40% 20%, rgba(99, 102, 241, 0.12) 0px, transparent 50%),
+    radial-gradient(at 80% 0%, rgba(16, 185, 129, 0.08) 0px, transparent 50%),
+    radial-gradient(at 0% 50%, rgba(139, 92, 246, 0.08) 0px, transparent 50%);
+}
