@@ -136,7 +136,7 @@ export default function Hero() {
   }, []);
 
   const stats = [
-    { value: '7+', label: 'Projects Built' },
+    { value: '10+', label: 'Projects Built' },
     { value: '90+', label: 'Students Assisted' },
     { value: '98%', label: 'On-Time Grading' },
   ];

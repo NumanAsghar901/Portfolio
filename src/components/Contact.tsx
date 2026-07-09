@@ -188,7 +188,7 @@ export default function Contact() {
                       Location / Campus
                     </p>
                     <p className="font-sans text-sm text-zinc-700 dark:text-zinc-200 mt-1 font-medium">
-                      Lahore, Pakistan (FAST-NUCES Student)
+                      Faisalabad, Pakistan (FAST-NUCES)
                     </p>
                   </div>
                 </div>

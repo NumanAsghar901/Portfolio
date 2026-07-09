@@ -4,14 +4,14 @@ import portraitImg from './assets/images/numan_portrait_1783150950872.png';
 export const personalInfo = {
   name: "Muhammad Numan Asghar",
   title: "Computer Science Student | FAST-NUCES",
-  location: "FAST-NUCES, Lahore, Pakistan",
+  location: "FAST-NUCES, Faisalabad, Pakistan",
   phone: "(+92) 326-1192066",
   email: "asgharnuman901@gmail.com",
   portraitUrl: portraitImg,
   linkedin: "https://www.linkedin.com/in/numan-a-79587628a",
   github: "https://github.com/NumanAsghar901",
   summary:
-    "Final-year Computer Science student specializing in the MERN Stack, Data Science, Machine Learning, and AI Agent Development. Experienced in building ML pipelines (preprocessing, feature engineering, model evaluation) and AI-driven automation workflows using Python, n8n, and APIs. Proficient in full-stack web development with a focus on responsive and scalable applications. Passionate about combining intelligent systems with modern web technologies to solve real-world problems.",
+    "Final-year Computer Science student specializing in the MERN Stack, Data Science, Machine Learning, and AI Agent Development. Experienced in building ML pipelines and AI-driven automation workflows using Python, n8n, and APIs. Proficient in full-stack web development with a focus on responsive and scalable applications. Passionate about combining intelligent systems with modern web technologies to solve real-world problems.",
 };
 
 export const skillsData: SkillCategory[] = [
@@ -21,7 +21,7 @@ export const skillsData: SkillCategory[] = [
     skills: [
       { name: "Python", level: 95 },
       { name: "JavaScript / TypeScript", level: 90 },
-      { name: "C++", level: 85 },
+      { name: "C++", level: 95 },
       { name: "SQL", level: 88 },
     ],
   },
@@ -29,12 +29,12 @@ export const skillsData: SkillCategory[] = [
     title: "Data Science & ML",
     iconName: "BrainCircuit",
     skills: [
-      { name: "Pandas & NumPy", level: 92 },
+      { name: "Pandas & NumPy", level: 98 },
       { name: "Scikit-learn", level: 88 },
       { name: "Data Preprocessing", level: 90 },
       { name: "Regression & Classification", level: 87 },
-      { name: "Model Evaluation", level: 85 },
-      { name: "Seaborn & Matplotlib", level: 84 },
+      { name: "Model Evaluation", level: 92 },
+      { name: "Seaborn & Matplotlib", level: 85 },
     ],
   },
   {
@@ -63,9 +63,9 @@ export const skillsData: SkillCategory[] = [
     title: "Relevant Coursework",
     iconName: "GraduationCap",
     skills: [
-      { name: "Data Structures & Algorithms", level: 92 },
-      { name: "Object Oriented Programming", level: 90 },
-      { name: "Database Systems", level: 88 },
+      { name: "Data Structures & Algorithms", level: 95 },
+      { name: "Object Oriented Programming", level: 95 },
+      { name: "Database Systems", level: 90 },
       { name: "Operating Systems", level: 85 },
       { name: "Machine Learning", level: 88 },
     ],
@@ -100,7 +100,7 @@ export const projectsData: Project[] = [
     ],
     category: "ml",
     tech: ["Python", "Scikit-learn", "Streamlit", "Pandas", "NumPy"],
-    liveUrl: "https://student-marks-predictor.streamlit.app",
+    liveUrl: "https://ds-marks-prediction.streamlit.app/",
     githubUrl: "https://github.com/NumanAsghar901",
   },
   {
@@ -159,7 +159,7 @@ export const projectsData: Project[] = [
     ],
     category: "web",
     tech: ["HTML5", "CSS3", "JavaScript"],
-    liveUrl: "https://numan-memory-game.vercel.app",
+    liveUrl: "https://memory-matching-game-beta.vercel.app/",
     githubUrl: "https://github.com/NumanAsghar901",
   },
   {
@@ -174,7 +174,7 @@ export const projectsData: Project[] = [
     ],
     category: "web",
     tech: ["HTML5", "CSS3", "JavaScript", "Tailwind CSS"],
-    liveUrl: "https://industrial-web.vercel.app",
+    liveUrl: "https://industral-website.vercel.app/",
     githubUrl: "https://github.com/NumanAsghar901",
   },
 ];
