@@ -82,10 +82,10 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="py-20 bg-zinc-50 dark:bg-zinc-950 transition-colors duration-300 relative overflow-hidden"
+      className="py-20 bg-transparent transition-colors duration-300 relative overflow-hidden"
     >
       {/* Decorative details */}
-      <div className="absolute top-1/2 right-10 -translate-y-1/2 w-64 h-64 bg-indigo-500/5 dark:bg-indigo-500/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 right-10 -translate-y-1/2 w-64 h-64 bg-yellow-500/5 bg-yellow-500/5 blur-3xl rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
@@ -94,7 +94,7 @@ export default function Contact() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
-            className="text-xs font-mono font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase"
+            className="text-xs font-mono font-bold tracking-widest text-yellow-600 text-yellow-400 uppercase"
           >
             Connection
           </motion.p>
@@ -103,7 +103,7 @@ export default function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mt-2"
+            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100 mt-2"
           >
             Get In Touch
           </motion.h2>
@@ -112,7 +112,7 @@ export default function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.2 }}
-            className="text-zinc-600 dark:text-zinc-400 mt-4 leading-relaxed"
+            className="text-zinc-400 mt-4 leading-relaxed"
           >
             Have a project in mind, an academic collaboration, or an automation query? Drop me a message below!
           </motion.p>
@@ -122,31 +122,31 @@ export default function Contact() {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="contact-grid">
           {/* Contact Details Block */}
           <div className="lg:col-span-5 space-y-6" id="contact-info">
-            <div className="rounded-2xl border border-zinc-200/50 dark:border-zinc-900/80 bg-white dark:bg-zinc-900 p-6 shadow-md shadow-zinc-100 dark:shadow-none space-y-8">
-              <h3 className="font-sans font-bold text-lg text-zinc-900 dark:text-zinc-100">
+            <div className="rounded-2xl border /50 border-zinc-900/80 bg-zinc-900 p-6 shadow-zinc-100 shadow-none space-y-8">
+              <h3 className="font-sans font-bold text-lg text-zinc-100">
                 Contact Information
               </h3>
 
               <div className="space-y-6">
                 {/* Email detail */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 flex items-center justify-center text-indigo-600 dark:text-indigo-400 shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-yellow-50 bg-yellow-950/20 border border-yellow-100 border-yellow-900/30 flex items-center justify-center text-yellow-600 text-yellow-400 shrink-0">
                     <Mail className="w-5 h-5" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-sans text-xs text-zinc-400 dark:text-zinc-500 font-semibold uppercase tracking-wider">
+                    <p className="font-sans text-xs text-zinc-400 font-semibold uppercase tracking-wider">
                       Email Address
                     </p>
                     <div className="flex items-center space-x-2 mt-1">
                       <a
                         href={`mailto:${personalInfo.email}`}
-                        className="font-mono text-sm text-zinc-700 dark:text-zinc-205 hover:text-indigo-500 dark:hover:text-indigo-400 truncate block font-medium"
+                        className="font-mono text-sm text-zinc-205 hover:text-yellow-500 hover:text-yellow-400 truncate block font-medium"
                       >
                         {personalInfo.email}
                       </a>
                       <button
                         onClick={handleCopyEmail}
-                        className="p-1 rounded bg-zinc-50 dark:bg-zinc-800 text-zinc-400 hover:bg-zinc-100 dark:hover:bg-zinc-700 transition-colors shrink-0"
+                        className="p-1 rounded bg-zinc-800 text-zinc-400 hover:hover:bg-zinc-700 transition-colors shrink-0"
                         title="Copy to clipboard"
                         id="copy-email-btn"
                       >
@@ -162,16 +162,16 @@ export default function Contact() {
 
                 {/* Phone detail */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-100 dark:border-emerald-900/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-emerald-50 bg-emerald-950/20 border border-emerald-100 border-emerald-900/30 flex items-center justify-center text-emerald-600 text-emerald-400 shrink-0">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="font-sans text-xs text-zinc-400 dark:text-zinc-500 font-semibold uppercase tracking-wider">
+                    <p className="font-sans text-xs text-zinc-400 font-semibold uppercase tracking-wider">
                       Phone Number
                     </p>
                     <a
                       href={`tel:${personalInfo.phone.replace(/[^0-9+]/g, '')}`}
-                      className="font-mono text-sm text-zinc-700 dark:text-zinc-202 hover:text-emerald-500 dark:hover:text-emerald-400 mt-1 block font-medium"
+                      className="font-mono text-sm text-zinc-202 hover:text-emerald-500 hover:text-emerald-400 mt-1 block font-medium"
                     >
                       {personalInfo.phone}
                     </a>
@@ -180,14 +180,14 @@ export default function Contact() {
 
                 {/* Location detail */}
                 <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 rounded-xl bg-indigo-50 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900/30 flex items-center justify-center text-indigo-650 dark:text-indigo-405 shrink-0">
+                  <div className="w-10 h-10 rounded-xl bg-yellow-50 bg-yellow-950/20 border border-yellow-100 border-yellow-900/30 flex items-center justify-center text-yellow-650 text-yellow-405 shrink-0">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <p className="font-sans text-xs text-zinc-400 dark:text-zinc-500 font-semibold uppercase tracking-wider">
+                    <p className="font-sans text-xs text-zinc-400 font-semibold uppercase tracking-wider">
                       Location / Campus
                     </p>
-                    <p className="font-sans text-sm text-zinc-700 dark:text-zinc-200 mt-1 font-medium">
+                    <p className="font-sans text-sm text-zinc-200 mt-1 font-medium">
                       Faisalabad, Pakistan (FAST-NUCES)
                     </p>
                   </div>
@@ -198,7 +198,7 @@ export default function Contact() {
 
           {/* Contact Form Block */}
           <div className="lg:col-span-7" id="contact-form-container">
-            <div className="rounded-2xl border border-zinc-200/50 dark:border-zinc-900/80 bg-white dark:bg-zinc-900 p-6 sm:p-8 shadow-md shadow-zinc-100 dark:shadow-none relative">
+            <div className="rounded-2xl border /50 border-zinc-900/80 bg-zinc-900 p-6 sm:p-8 shadow-zinc-100 shadow-none relative">
               <AnimatePresence mode="wait">
                 {formStatus === 'success' ? (
                   /* Success Feedback Page */
@@ -209,18 +209,18 @@ export default function Contact() {
                     className="flex flex-col items-center justify-center text-center py-10"
                     id="contact-success"
                   >
-                    <div className="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-950/50 flex items-center justify-center text-emerald-500 dark:text-emerald-400 mb-6 border border-emerald-200/50 dark:border-emerald-900/50">
+                    <div className="w-16 h-16 rounded-full bg-emerald-100 bg-emerald-950/50 flex items-center justify-center text-emerald-500 text-emerald-400 mb-6 border border-emerald-200/50 border-emerald-900/50">
                       <CheckCircle2 className="w-10 h-10" />
                     </div>
-                    <h3 className="font-sans font-bold text-2xl text-zinc-900 dark:text-zinc-100">
+                    <h3 className="font-sans font-bold text-2xl text-zinc-100">
                       Message Sent Successfully!
                     </h3>
-                    <p className="text-zinc-600 dark:text-zinc-350 mt-3 max-w-md text-sm leading-relaxed">
+                    <p className="text-zinc-350 mt-3 max-w-md text-sm leading-relaxed">
                       Thank you for reaching out! Your message has been sent successfully. I will review your inquiry and get back to you at my earliest convenience.
                     </p>
                     <button
                       onClick={() => setFormStatus('idle')}
-                      className="mt-8 px-6 py-2.5 bg-zinc-100 hover:bg-zinc-200 dark:bg-zinc-850 dark:hover:bg-zinc-800 text-zinc-700 dark:text-zinc-300 font-semibold text-xs uppercase tracking-wider rounded-xl transition-all"
+                      className="mt-8 px-6 py-2.5 hover:bg-zinc-200 bg-zinc-850 hover:bg-zinc-800 text-zinc-300 font-semibold text-xs uppercase tracking-wider rounded-xl transition-all"
                     >
                       Send Another Message
                     </button>
@@ -240,7 +240,7 @@ export default function Contact() {
                       <div className="flex flex-col">
                         <label
                           htmlFor="name"
-                          className="font-sans text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider"
+                          className="font-sans text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider"
                         >
                           Full Name
                         </label>
@@ -253,7 +253,7 @@ export default function Contact() {
                           onChange={handleInputChange}
                           disabled={formStatus === 'sending'}
                           placeholder="Your full name"
-                          className="px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 text-zinc-900 dark:text-zinc-100 placeholder-zinc-450 text-sm focus:border-indigo-500 dark:focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all disabled:opacity-50"
+                          className="px-4 py-3 rounded-xl border border-zinc-800 /50 bg-transparent/40 text-zinc-100 placeholder-zinc-450 text-sm focus:border-yellow-500 focus:border-yellow-500 focus:focus:bg-zinc-900 focus:outline-none transition-all disabled:opacity-50"
                         />
                       </div>
 
@@ -261,7 +261,7 @@ export default function Contact() {
                       <div className="flex flex-col">
                         <label
                           htmlFor="email"
-                          className="font-sans text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider"
+                          className="font-sans text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider"
                         >
                           Email Address
                         </label>
@@ -274,7 +274,7 @@ export default function Contact() {
                           onChange={handleInputChange}
                           disabled={formStatus === 'sending'}
                           placeholder="your.email@example.com"
-                          className="px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 text-zinc-900 dark:text-zinc-100 placeholder-zinc-450 text-sm focus:border-indigo-500 dark:focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all disabled:opacity-50"
+                          className="px-4 py-3 rounded-xl border border-zinc-800 /50 bg-transparent/40 text-zinc-100 placeholder-zinc-450 text-sm focus:border-yellow-500 focus:border-yellow-500 focus:focus:bg-zinc-900 focus:outline-none transition-all disabled:opacity-50"
                         />
                       </div>
                     </div>
@@ -283,7 +283,7 @@ export default function Contact() {
                     <div className="flex flex-col">
                       <label
                         htmlFor="subject"
-                        className="font-sans text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider"
+                        className="font-sans text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider"
                       >
                         Subject
                       </label>
@@ -296,7 +296,7 @@ export default function Contact() {
                         onChange={handleInputChange}
                         disabled={formStatus === 'sending'}
                         placeholder="Inquiry or project title"
-                        className="px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 text-zinc-900 dark:text-zinc-100 placeholder-zinc-450 text-sm focus:border-indigo-500 dark:focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all disabled:opacity-50"
+                        className="px-4 py-3 rounded-xl border border-zinc-800 /50 bg-transparent/40 text-zinc-100 placeholder-zinc-450 text-sm focus:border-yellow-500 focus:border-yellow-500 focus:focus:bg-zinc-900 focus:outline-none transition-all disabled:opacity-50"
                       />
                     </div>
 
@@ -304,7 +304,7 @@ export default function Contact() {
                     <div className="flex flex-col">
                       <label
                         htmlFor="message"
-                        className="font-sans text-xs font-semibold text-zinc-500 dark:text-zinc-400 mb-1.5 uppercase tracking-wider"
+                        className="font-sans text-xs font-semibold text-zinc-400 mb-1.5 uppercase tracking-wider"
                       >
                         Message Body
                       </label>
@@ -317,13 +317,13 @@ export default function Contact() {
                         onChange={handleInputChange}
                         disabled={formStatus === 'sending'}
                         placeholder="Enter details about your inquiry..."
-                        className="px-4 py-3 rounded-xl border border-zinc-200 dark:border-zinc-800 bg-zinc-50/50 dark:bg-zinc-950/40 text-zinc-900 dark:text-zinc-100 placeholder-zinc-450 text-sm focus:border-indigo-500 dark:focus:border-indigo-500 focus:bg-white dark:focus:bg-zinc-900 focus:outline-none transition-all resize-none disabled:opacity-50"
+                        className="px-4 py-3 rounded-xl border border-zinc-800 /50 bg-transparent/40 text-zinc-100 placeholder-zinc-450 text-sm focus:border-yellow-500 focus:border-yellow-500 focus:focus:bg-zinc-900 focus:outline-none transition-all resize-none disabled:opacity-50"
                       />
                     </div>
 
                     {/* Form Status Messages */}
                     {formStatus === 'error' && (
-                      <div className="flex items-center space-x-2 text-rose-500 dark:text-rose-400 text-sm bg-rose-50 dark:bg-rose-950/20 px-4 py-3 rounded-xl border border-rose-100 dark:border-rose-900/30">
+                      <div className="flex items-center space-x-2 text-rose-500 text-rose-400 text-sm bg-rose-50 bg-rose-950/20 px-4 py-3 rounded-xl border border-rose-100 border-rose-900/30">
                         <AlertCircle className="w-4 h-4 shrink-0" />
                         <span>{errorMessage}</span>
                       </div>
@@ -333,7 +333,7 @@ export default function Contact() {
                     <button
                       type="submit"
                       disabled={formStatus === 'sending'}
-                      className="w-full inline-flex items-center justify-center space-x-2 px-6 py-3.5 bg-gradient-to-r from-indigo-500 to-emerald-500 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-lg shadow-indigo-500/15 hover:shadow-emerald-500/20 hover:scale-[1.01] active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-75"
+                      className="w-full inline-flex items-center justify-center space-x-2 px-6 py-3.5 bg-gradient-to-r from-yellow-500 to-emerald-500 text-white font-semibold text-xs sm:text-sm rounded-xl shadow-lg shadow-yellow-500/15 hover:shadow-emerald-500/20 hover:scale-[1.01] active:scale-95 transition-all duration-200 cursor-pointer disabled:opacity-75"
                     >
                       {formStatus === 'sending' ? (
                         <>

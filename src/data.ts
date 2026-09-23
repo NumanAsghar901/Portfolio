@@ -1,5 +1,5 @@
 import { Project, SkillCategory, Experience, Education, Achievement } from './types';
-import portraitImg from './assets/images/numan_portrait_1783150950872.png';
+import portraitImg from './assets/images/im.png';
 
 export const personalInfo = {
   name: "Muhammad Numan Asghar",

@@ -9,18 +9,18 @@ export default function Skills() {
   const getIcon = (name: string) => {
     const IconComponent = (LucideIcons as any)[name];
     if (IconComponent) {
-      return <IconComponent className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />;
+      return <IconComponent className="w-5 h-5 text-yellow-600 text-yellow-400" />;
     }
-    return <LucideIcons.Code2 className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />;
+    return <LucideIcons.Code2 className="w-5 h-5 text-yellow-600 text-yellow-400" />;
   };
 
   return (
     <section
       id="skills"
-      className="py-20 bg-white dark:bg-zinc-950 transition-colors duration-300 relative overflow-hidden"
+      className="py-20 bg-transparent transition-colors duration-300 relative overflow-hidden"
     >
       {/* Background visual detail */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-indigo-400/5 dark:bg-indigo-500/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-yellow-400/5 bg-yellow-500/5 blur-3xl rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
@@ -29,7 +29,7 @@ export default function Skills() {
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
-            className="text-xs font-mono font-bold tracking-widest text-indigo-600 dark:text-indigo-400 uppercase"
+            className="text-xs font-mono font-bold tracking-widest text-yellow-600 text-yellow-400 uppercase"
           >
             Capabilities
           </motion.p>
@@ -38,7 +38,7 @@ export default function Skills() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-900 dark:text-zinc-100 mt-2"
+            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100 mt-2"
           >
             Technical Stack & Expertise
           </motion.h2>
@@ -47,7 +47,7 @@ export default function Skills() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.2 }}
-            className="text-zinc-600 dark:text-zinc-400 mt-4 leading-relaxed"
+            className="text-zinc-400 mt-4 leading-relaxed"
           >
             Developing and optimizing pipelines across web systems, machine learning pipelines, and robust AI automation models.
           </motion.p>
@@ -62,14 +62,14 @@ export default function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={{ delay: index * 0.1 }}
-              className="rounded-2xl border border-zinc-200/50 dark:border-zinc-900/80 bg-zinc-50/40 dark:bg-zinc-900/20 p-6 shadow-sm hover:shadow-md hover:border-indigo-500/20 dark:hover:border-indigo-500/10 transition-all duration-300"
+              className="rounded-2xl border /50 border-zinc-900/80 /40 bg-zinc-900/20 p-6 hover:hover:border-yellow-500/20 hover:border-yellow-500/10 transition-all duration-300"
             >
               {/* Category Title */}
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-indigo-100/80 dark:bg-indigo-950/40 flex items-center justify-center border border-indigo-200/20 dark:border-indigo-800/20">
+                <div className="w-10 h-10 rounded-xl bg-yellow-100/80 bg-yellow-950/40 flex items-center justify-center border border-yellow-200/20 border-yellow-800/20">
                   {getIcon(category.iconName)}
                 </div>
-                <h3 className="font-sans font-bold text-lg text-zinc-900 dark:text-zinc-100">
+                <h3 className="font-sans font-bold text-lg text-zinc-100">
                   {category.title}
                 </h3>
               </div>
@@ -84,11 +84,11 @@ export default function Skills() {
                   return (
                     <div key={skillName} className="group">
                       <div className="flex justify-between items-center mb-1.5">
-                        <span className="font-sans font-medium text-sm text-zinc-700 dark:text-zinc-300 group-hover:text-indigo-650 dark:group-hover:text-indigo-400 transition-colors duration-200">
+                        <span className="font-sans font-medium text-sm text-zinc-300 group-hover:text-yellow-650 group-hover:text-yellow-400 transition-colors duration-200">
                           {skillName}
                         </span>
                         {isSkillObject && (
-                          <span className="font-mono text-[11px] text-zinc-500 dark:text-zinc-400 font-semibold bg-zinc-100 dark:bg-zinc-900 px-1.5 py-0.5 rounded-md">
+                          <span className="font-mono text-[11px] text-zinc-400 font-semibold bg-zinc-900 px-1.5 py-0.5 rounded-md">
                             {skillLevel}%
                           </span>
                         )}
@@ -96,17 +96,17 @@ export default function Skills() {
 
                       {/* Animated Skill Meter */}
                       {isSkillObject ? (
-                        <div className="w-full h-1.5 bg-zinc-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-zinc-200 bg-zinc-800 rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             whileInView={{ width: `${skillLevel}%` }}
                             viewport={{ once: true }}
                             transition={{ duration: 1, delay: sIdx * 0.05 }}
-                            className="h-full bg-gradient-to-r from-indigo-500 to-emerald-550 rounded-full"
+                            className="h-full bg-gradient-to-r from-yellow-500 to-emerald-550 rounded-full"
                           />
                         </div>
                       ) : (
-                        <div className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block mr-1" />
+                        <div className="w-1.5 h-1.5 rounded-full bg-yellow-500 inline-block mr-1" />
                       )}
                     </div>
                   );
