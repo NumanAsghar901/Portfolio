@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ExternalLink, Github, Layers, Search, Code, Cpu, BrainCircuit } from 'lucide-react';
-import { projectsData } from '../data';
+import { usePortfolio } from '../context/PortfolioContext';
 import { Project } from '../types';
 
 export default function Projects() {
+  const { projectsData } = usePortfolio();
   const [activeFilter, setActiveFilter] = useState<'all' | 'web' | 'ml' | 'ai'>('all');
 
   const filterTabs = [
@@ -90,7 +91,7 @@ export default function Projects() {
           id="project-grid"
         >
           <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project, index) => (
+            {filteredProjects.map((project) => (
               <motion.div
                 layout
                 key={project.id}
@@ -102,47 +103,68 @@ export default function Projects() {
                 className="group flex flex-col h-full rounded-2xl bg-[#0d121c] border border-zinc-700/60 hover:border-yellow-500/40 shadow-xl transition-all duration-300 relative overflow-hidden project-card-3d"
               >
                 {/* Visual Accent Top Bar */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-emerald-450 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
 
-                {/* Card Content */}
-                <div className="p-6 flex flex-col flex-grow">
-                  {/* Category Pill Tag */}
-                  <div className="flex items-center justify-between mb-4">
-                    <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-yellow-650 text-yellow-400 bg-yellow-50 bg-yellow-950/30 px-2 py-1 rounded-md">
+                {/* Top Half: Project Image Preview */}
+                <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-950 border-b border-zinc-800/80">
+                  {project.imageUrl ? (
+                    <img
+                      src={project.imageUrl}
+                      alt={project.title}
+                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                      loading="lazy"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center bg-zinc-900/60 text-zinc-600">
+                      <Layers className="w-10 h-10" />
+                    </div>
+                  )}
+
+                  {/* Dark gradient overlay at bottom of image for seamless blending */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d121c] via-transparent to-black/30 pointer-events-none" />
+
+                  {/* Category Pill Tag floating on top left */}
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-yellow-400 bg-zinc-950/85 backdrop-blur-md border border-yellow-500/30 px-2.5 py-1 rounded-md shadow-lg inline-block">
                       {project.category === 'web'
                         ? 'MERN & WEB DEV'
                         : project.category === 'ml'
                         ? 'MACHINE LEARNING'
                         : 'AI & AUTOMATION'}
                     </span>
-                    <div className="flex items-center space-x-2">
-                      {project.githubUrl && (
-                        <a
-                          href={project.githubUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 rounded-md bg-zinc-800 text-zinc-400 hover:hover:text-white transition-colors"
-                          title="GitHub Source"
-                        >
-                          <Github className="w-4 h-4" />
-                        </a>
-                      )}
-                      {project.liveUrl && (
-                        <a
-                          href={project.liveUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="p-1.5 rounded-md bg-zinc-800 text-zinc-400 hover:hover:text-white transition-colors"
-                          title="Live Demo"
-                        >
-                          <ExternalLink className="w-4 h-4" />
-                        </a>
-                      )}
-                    </div>
                   </div>
 
+                  {/* Action Links floating on top right */}
+                  <div className="absolute top-3 right-3 z-10 flex items-center space-x-1.5">
+                    {project.githubUrl && (
+                      <a
+                        href={project.githubUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-lg bg-zinc-950/85 backdrop-blur-md border border-zinc-700/60 text-zinc-300 hover:text-white hover:border-yellow-500/50 hover:bg-zinc-900 transition-all shadow-lg"
+                        title="GitHub Source"
+                      >
+                        <Github className="w-4 h-4" />
+                      </a>
+                    )}
+                    {project.liveUrl && (
+                      <a
+                        href={project.liveUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="p-1.5 rounded-lg bg-zinc-950/85 backdrop-blur-md border border-zinc-700/60 text-zinc-300 hover:text-white hover:border-yellow-500/50 hover:bg-zinc-900 transition-all shadow-lg"
+                        title="Live Demo"
+                      >
+                        <ExternalLink className="w-4 h-4" />
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* Bottom Half: Project Information */}
+                <div className="p-5 sm:p-6 flex flex-col flex-grow">
                   {/* Title & Subtitle */}
-                  <h3 className="font-sans font-bold text-lg sm:text-xl text-zinc-100 group-hover:text-yellow-500 group-hover:text-yellow-400 transition-colors duration-200">
+                  <h3 className="font-sans font-bold text-lg sm:text-xl text-zinc-100 group-hover:text-yellow-400 transition-colors duration-200">
                     {project.title}
                   </h3>
                   <p className="font-mono text-[11px] text-zinc-400 mt-1">
@@ -150,26 +172,16 @@ export default function Projects() {
                   </p>
 
                   {/* Description */}
-                  <p className="text-zinc-350 text-sm mt-3 leading-relaxed flex-grow">
+                  <p className="text-zinc-300 text-sm mt-3 leading-relaxed flex-grow">
                     {project.description}
                   </p>
 
-                  {/* Key bullet outcomes */}
-                  <ul className="mt-4 space-y-2 border-t border-zinc-100 border-zinc-800/80 pt-4 mb-4">
-                    {project.bullets.map((bullet, bIdx) => (
-                      <li key={bIdx} className="text-xs text-zinc-400 flex items-start space-x-2 leading-relaxed">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 mt-1.5 shrink-0" />
-                        <span>{bullet}</span>
-                      </li>
-                    ))}
-                  </ul>
-
-                  {/* Technology badging */}
-                  <div className="flex flex-wrap gap-1.5 mt-auto">
+                  {/* Technology Badging */}
+                  <div className="flex flex-wrap gap-1.5 mt-5 pt-3 border-t border-zinc-800/80">
                     {project.tech.map((t) => (
                       <span
                         key={t}
-                        className="font-sans text-[10px] font-semibold bg-zinc-800 text-zinc-400 px-2 py-0.5 rounded-md border /40 border-zinc-700/40"
+                        className="font-sans text-[11px] font-medium bg-zinc-800/80 text-zinc-300 px-2 py-0.5 rounded-md border border-zinc-700/40"
                       >
                         {t}
                       </span>

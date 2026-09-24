@@ -1,0 +1,82 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Catalog /Pages 2 0 R >>
+endobj
+2 0 obj
+<< /Type /Pages /Kids [3 0 R] /Count 1 >>
+endobj
+3 0 obj
+<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Contents 4 0 R /Resources << /Font << /F1 5 0 R >> >> >>
+endobj
+4 0 obj
+<< /Length 1598 >>
+stream
+BT
+/F1 20 Tf
+50 730 Td
+(Muhammad Numan Asghar - Curriculum Vitae) Tj
+/F1 12 Tf
+0 -28 Td
+(Title: Computer Science Student | FAST-NUCES) Tj
+0 -20 Td
+(Email: numanasghar901@gmail.com | Phone: (+92) 326-1192066) Tj
+0 -20 Td
+(Location: FAST-NUCES, Faisalabad, Pakistan) Tj
+0 -20 Td
+(LinkedIn: https://www.linkedin.com/in/numan-a-79587628a) Tj
+0 -20 Td
+(GitHub: https://github.com/NumanAsghar901) Tj
+0 -20 Td
+(--------------------------------------------------------------------------------) Tj
+0 -20 Td
+(Summary:) Tj
+0 -20 Td
+(Final-year Computer Science student specializing in MERN Stack,) Tj
+0 -20 Td
+(Data Science, Machine Learning, and AI Agent Development.) Tj
+0 -20 Td
+(Experienced in building ML pipelines and AI-driven automation workflows.) Tj
+0 -20 Td
+(--------------------------------------------------------------------------------) Tj
+0 -20 Td
+(Technical Stack:) Tj
+0 -20 Td
+(Languages: Python, JavaScript, TypeScript, C++, SQL) Tj
+0 -20 Td
+(Full Stack: React, Node.js, Express, MongoDB, Tailwind CSS) Tj
+0 -20 Td
+(Data Science: Scikit-learn, Pandas, NumPy, XGBoost, Streamlit) Tj
+0 -20 Td
+(AI & Automation: n8n Workflows, REST APIs, LLM Integration, Prompt Engineering) Tj
+0 -20 Td
+(--------------------------------------------------------------------------------) Tj
+0 -20 Td
+(Experience:) Tj
+0 -20 Td
+(Software Engineer @ Prop Firm Studios (2024 - Present)) Tj
+0 -20 Td
+(Full Stack & AI Automation Freelancer (2023 - Present)) Tj
+0 -20 Td
+(Teaching Assistant @ FAST-NUCES (Sep 2024 - Jun 2026)) Tj
+0 -20 Td
+(Education: BS in Computer Science, FAST-NUCES (2023 - Present)) Tj
+0 -20 Td
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+xref
+0 6
+0000000000 65535 f 
+0000000009 00000 n 
+0000000058 00000 n 
+0000000115 00000 n 
+0000000241 00000 n 
+0000001891 00000 n 
+trailer
+<< /Size 6 /Root 1 0 R >>
+startxref
+1961
+%%EOF

@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
-import { interestsData } from '../data';
+import { usePortfolio } from '../context/PortfolioContext';
 
 export default function Interests() {
+  const { interestsData } = usePortfolio();
   const getIcon = (name: string) => {
     const IconComponent = (LucideIcons as Record<string, React.ComponentType<{ className?: string }>>)[name];
     if (IconComponent) {

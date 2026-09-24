@@ -1,5 +1,12 @@
 import { Project, SkillCategory, Experience, Education, Achievement } from './types';
 import portraitImg from './assets/images/im.png';
+import fastHubImg from './assets/images/fast-academic-hub.png';
+import studentMarksImg from './assets/images/student-marks-prediction.png';
+import churnPredImg from './assets/images/customer-churn-prediction.jpg';
+import aiHunterImg from './assets/images/ai-internship-hunter.jpg';
+import invoiceGenImg from './assets/images/na-invoice-generator.png';
+import memoryGameImg from './assets/images/memory-matching-game.png';
+import industrialWebImg from './assets/images/industrial-website.png';
 
 export const personalInfo = {
   name: "Muhammad Numan Asghar",
@@ -79,12 +86,9 @@ export const projectsData: Project[] = [
     subtitle: "TA & Student Marking Portal (MERN Stack)",
     description:
       "A full-featured academic web portal for streamlining marking, grading, and feedback workflows at FAST-NUCES.",
-    bullets: [
-      "Designed an intuitive interface for TAs to manage assignments, record marks, and provide structured feedback.",
-      "Actively used by FAST-NUCES TAs and students — optimized marking workflows and academic communications.",
-    ],
     category: "web",
     tech: ["React", "Node.js", "Express", "MongoDB", "Tailwind CSS"],
+    imageUrl: fastHubImg,
     liveUrl: "https://fast-academic-hub-nu.vercel.app/",
   },
   {
@@ -93,13 +97,9 @@ export const projectsData: Project[] = [
     subtitle: "Data Science & Machine Learning",
     description:
       "Regression pipeline predicting student exam marks across three question types with an interactive Streamlit app.",
-    bullets: [
-      "Compared DummyMean, Linear Regression, and Polynomial Ridge models using Scikit-learn.",
-      "Linear Regression achieved the best Test R² of 0.54 with detailed preprocessing and feature selection.",
-      "Deployed an interactive Streamlit web app for real-time predictions.",
-    ],
     category: "ml",
     tech: ["Python", "Scikit-learn", "Streamlit", "Pandas", "NumPy"],
+    imageUrl: studentMarksImg,
     liveUrl: "https://ds-marks-prediction.streamlit.app/",
     githubUrl: "https://github.com/NumanAsghar901",
   },
@@ -108,14 +108,10 @@ export const projectsData: Project[] = [
     title: "Customer Churn Prediction",
     subtitle: "Machine Learning Pipeline",
     description:
-      "Multi-model classification pipeline to predict customer churn in enterprise systems.",
-    bullets: [
-      "Compared Logistic Regression, Decision Tree, Random Forest, and XGBoost.",
-      "Logistic Regression achieved 80.5% accuracy with an F1-score of 0.61.",
-      "Evaluated models across accuracy, precision, recall, and F1-score for imbalanced data.",
-    ],
+      "Multi-model classification pipeline to predict customer churn in enterprise systems with comprehensive evaluation.",
     category: "ml",
     tech: ["Python", "Scikit-learn", "XGBoost", "Pandas", "Seaborn"],
+    imageUrl: churnPredImg,
     githubUrl: "https://github.com/NumanAsghar901",
   },
   {
@@ -123,13 +119,10 @@ export const projectsData: Project[] = [
     title: "AI Automated Internship Hunting System",
     subtitle: "n8n + AI Orchestration",
     description:
-      "AI-powered automation workflow using n8n to collect, filter, and match internship opportunities.",
-    bullets: [
-      "Leveraged APIs, web scraping, and LLM filtering to automatically source relevant positions.",
-      "End-to-end pipeline with webhooks, HTTP requests, and automated notifications.",
-    ],
+      "AI-powered automation workflow using n8n to collect, filter, and match relevant internship opportunities.",
     category: "ai",
     tech: ["n8n", "LLM Integration", "Webhooks", "APIs", "Automation"],
+    imageUrl: aiHunterImg,
     githubUrl: "https://github.com/NumanAsghar901",
   },
   {
@@ -138,12 +131,9 @@ export const projectsData: Project[] = [
     subtitle: "HTML, CSS, JavaScript Web App",
     description:
       "Web-based tool for creating and downloading professional invoices with dynamic calculations and PDF export.",
-    bullets: [
-      "Implemented dynamic calculations, responsive UI, and instant PDF export.",
-      "Deployed on Vercel with dark mode support.",
-    ],
     category: "web",
     tech: ["HTML5", "CSS3", "JavaScript", "jspdf", "Tailwind CSS"],
+    imageUrl: invoiceGenImg,
     liveUrl: "https://na-invoice-generator.vercel.app",
     githubUrl: "https://github.com/NumanAsghar901",
   },
@@ -152,13 +142,10 @@ export const projectsData: Project[] = [
     title: "Memory Matching Game",
     subtitle: "Interactive Client-Side Web App",
     description:
-      "Browser-based matching card game with dynamic DOM updates, state handling, and match validation.",
-    bullets: [
-      "Move counter and timer to track player performance.",
-      "Fluid CSS grid with responsive design and engaging animations.",
-    ],
+      "Browser-based matching card game with dynamic DOM updates, state handling, move counter, and timer.",
     category: "web",
     tech: ["HTML5", "CSS3", "JavaScript"],
+    imageUrl: memoryGameImg,
     liveUrl: "https://memory-matching-game-beta.vercel.app/",
     githubUrl: "https://github.com/NumanAsghar901",
   },
@@ -167,13 +154,10 @@ export const projectsData: Project[] = [
     title: "Industrial Corporate Website",
     subtitle: "Responsive Multi-Page Web App",
     description:
-      "Responsive multi-page corporate portal highlighting company services and capabilities.",
-    bullets: [
-      "Integrated multimedia assets with clean, fast navigation.",
-      "Deployed on Vercel with layouts tailored for mobile, tablet, and desktop.",
-    ],
+      "Responsive multi-page corporate portal highlighting company services, capabilities, and multimedia assets.",
     category: "web",
     tech: ["HTML5", "CSS3", "JavaScript", "Tailwind CSS"],
+    imageUrl: industrialWebImg,
     liveUrl: "https://industral-website.vercel.app/",
     githubUrl: "https://github.com/NumanAsghar901",
   },

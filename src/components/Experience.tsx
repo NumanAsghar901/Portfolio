@@ -1,9 +1,10 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import { Briefcase, GraduationCap, Award, Calendar, ChevronRight, ExternalLink } from 'lucide-react';
-import { experienceData, educationData, achievementsData } from '../data';
+import { usePortfolio } from '../context/PortfolioContext';
 
 export default function Experience() {
+  const { experienceData, educationData, achievementsData } = usePortfolio();
   return (
     <section
       id="experience"

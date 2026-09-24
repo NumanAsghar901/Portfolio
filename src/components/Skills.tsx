@@ -1,17 +1,19 @@
 import React from 'react';
 import { motion } from 'motion/react';
 import * as LucideIcons from 'lucide-react';
-import { skillsData } from '../data';
+import { usePortfolio } from '../context/PortfolioContext';
 import { Skill } from '../types';
 
 export default function Skills() {
+  const { skillsData } = usePortfolio();
+
   // Safe icon helper that falls back to code icon if missing
   const getIcon = (name: string) => {
     const IconComponent = (LucideIcons as any)[name];
     if (IconComponent) {
-      return <IconComponent className="w-5 h-5 text-yellow-600 text-yellow-400" />;
+      return <IconComponent className="w-5 h-5 text-yellow-400" />;
     }
-    return <LucideIcons.Code2 className="w-5 h-5 text-yellow-600 text-yellow-400" />;
+    return <LucideIcons.Code2 className="w-5 h-5 text-yellow-400" />;
   };
 
   return (
@@ -58,7 +60,7 @@ export default function Skills() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="skills-grid">
           {skillsData.map((category, index) => (
             <motion.div
-              key={category.title}
+              key={category.title + index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-100px' }}
@@ -67,7 +69,7 @@ export default function Skills() {
             >
               {/* Category Title */}
               <div className="flex items-center space-x-3 mb-6">
-                <div className="w-10 h-10 rounded-xl bg-yellow-100/80 bg-yellow-950/40 flex items-center justify-center border border-yellow-200/20 border-yellow-800/20">
+                <div className="w-10 h-10 rounded-xl bg-yellow-950/40 flex items-center justify-center border border-yellow-800/20">
                   {getIcon(category.iconName)}
                 </div>
                 <h3 className="font-sans font-bold text-lg text-zinc-100">
@@ -83,9 +85,9 @@ export default function Skills() {
                   const skillLevel = isSkillObject ? (skill as Skill).level : 85;
 
                   return (
-                    <div key={skillName} className="group">
+                    <div key={skillName + sIdx} className="group">
                       <div className="flex justify-between items-center mb-1.5">
-                        <span className="font-sans font-medium text-sm text-zinc-300 group-hover:text-yellow-650 group-hover:text-yellow-400 transition-colors duration-200">
+                        <span className="font-sans font-medium text-sm text-zinc-300 group-hover:text-yellow-400 transition-colors duration-200">
                           {skillName}
                         </span>
                         {isSkillObject && (
@@ -97,13 +99,13 @@ export default function Skills() {
 
                       {/* Animated Skill Meter */}
                       {isSkillObject ? (
-                        <div className="w-full h-1.5 bg-zinc-200 bg-zinc-800 rounded-full overflow-hidden">
+                        <div className="w-full h-1.5 bg-zinc-800 rounded-full overflow-hidden">
                           <motion.div
                             initial={{ width: 0 }}
                             whileInView={{ width: `${skillLevel}%` }}
                             viewport={{ once: true }}
                             transition={{ duration: 1, delay: sIdx * 0.05 }}
-                            className="h-full bg-gradient-to-r from-yellow-500 to-emerald-550 rounded-full"
+                            className="h-full bg-gradient-to-r from-yellow-500 to-emerald-500 rounded-full"
                           />
                         </div>
                       ) : (

@@ -1,10 +1,18 @@
 import React from 'react';
-import { ArrowUp, Github, Linkedin, Mail, Terminal } from 'lucide-react';
-import { personalInfo } from '../data';
+import { ArrowUp, Github, Linkedin, Mail, ShieldCheck } from 'lucide-react';
+import { usePortfolio } from '../context/PortfolioContext';
 
 export default function Footer() {
+  const { personalInfo } = usePortfolio();
+
   const scrollToTop = () => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const navigateToAdmin = (e: React.MouseEvent) => {
+    e.preventDefault();
+    window.history.pushState({}, '', '/admin');
+    window.dispatchEvent(new PopStateEvent('popstate'));
   };
 
   return (
@@ -20,9 +28,21 @@ export default function Footer() {
               Numan
             </span>
           </div>
-          <p className="font-sans text-xs text-zinc-500 font-medium">
-            © {new Date().getFullYear()} Muhammad Numan Asghar. All rights reserved.
-          </p>
+          <div className="flex items-center space-x-2">
+            <p className="font-sans text-xs text-zinc-500 font-medium">
+              © {new Date().getFullYear()} {personalInfo.name}. All rights reserved.
+            </p>
+            <span className="text-zinc-700">•</span>
+            <a
+              href="/admin"
+              onClick={navigateToAdmin}
+              className="inline-flex items-center space-x-1 text-xs text-zinc-600 hover:text-yellow-400 transition-colors"
+              title="Admin Portal"
+            >
+              <ShieldCheck size={12} />
+              <span>Admin</span>
+            </a>
+          </div>
         </div>
 
         {/* Center Side: Social profiles */}

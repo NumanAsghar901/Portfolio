@@ -3,9 +3,10 @@ export interface Project {
   title: string;
   subtitle: string;
   description: string;
-  bullets: string[];
+  bullets?: string[];
   category: 'web' | 'ml' | 'ai' | 'all';
   tech: string[];
+  imageUrl?: string;
   liveUrl?: string;
   githubUrl?: string;
 }
@@ -18,7 +19,7 @@ export interface Skill {
 export interface SkillCategory {
   title: string;
   iconName: string;
-  skills: string[] | Skill[];
+  skills: (Skill | string)[];
 }
 
 export interface Experience {
@@ -39,4 +40,41 @@ export interface Education {
 export interface Achievement {
   title: string;
   description: string;
+}
+
+export interface Interest {
+  title: string;
+  description: string;
+  iconName: string;
+}
+
+export interface PersonalInfo {
+  name: string;
+  title: string;
+  location: string;
+  phone: string;
+  email: string;
+  portraitUrl: string;
+  linkedin: string;
+  github: string;
+  summary: string;
+  // About section fields
+  aboutTitle?: string;
+  aboutSubtitle?: string;
+  origin?: string;
+  availability?: string;
+  yearsExp?: string;
+  projectsCount?: string;
+  awardsCount?: string;
+  // Hero section additions
+  heroGreeting?: string;
+  heroHeadline?: string;
+  heroHeadlinePrefix?: string;
+  heroHeadlineHighlight?: string;
+}
+
+export interface CvMetadata {
+  fileName: string;
+  fileSize: number;
+  updatedAt: string;
 }

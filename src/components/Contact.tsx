@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Copy, Check } from 'lucide-react';
-import { personalInfo } from '../data';
+import { usePortfolio } from '../context/PortfolioContext';
 
 export default function Contact() {
+  const { personalInfo } = usePortfolio();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
