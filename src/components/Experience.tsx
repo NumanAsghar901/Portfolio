@@ -1,34 +1,35 @@
 import React from 'react';
 import { motion } from 'motion/react';
-import { Briefcase, GraduationCap, Award, Calendar, ChevronRight } from 'lucide-react';
+import { Briefcase, GraduationCap, Award, Calendar, ChevronRight, ExternalLink } from 'lucide-react';
 import { experienceData, educationData, achievementsData } from '../data';
 
 export default function Experience() {
   return (
     <section
       id="experience"
-      className="py-20 bg-transparent transition-colors duration-300 relative overflow-hidden"
+      className="py-12 sm:py-16 bg-[#0c0f15] transition-colors duration-300 relative overflow-hidden"
     >
       {/* Background decorations */}
-      <div className="absolute top-10 left-10 w-72 h-72 rounded-full bg-yellow-500/5 bg-yellow-500/5 blur-3xl pointer-events-none" />
+      <div className="absolute top-10 left-10 w-80 h-80 rounded-full bg-yellow-500/5 blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16" id="experience-header">
-          <motion.p
+        <div className="text-center max-w-3xl mx-auto mb-10" id="experience-header">
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
-            className="text-xs font-mono font-bold tracking-widest text-yellow-600 text-yellow-400 uppercase"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs font-mono font-bold tracking-widest text-yellow-400 uppercase mb-2"
           >
+            <Briefcase className="w-3.5 h-3.5" />
             Journey
-          </motion.p>
+          </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100 mt-2"
+            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100"
           >
             Experience & Education
           </motion.h2>
@@ -37,9 +38,9 @@ export default function Experience() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.2 }}
-            className="text-zinc-400 mt-4 leading-relaxed"
+            className="text-zinc-400 mt-3 leading-relaxed"
           >
-            A timeline of academic leadership, rigorous computer science education, and institutional awards at FAST-NUCES.
+            A timeline of software engineering, academic leadership, and full-stack development experience.
           </motion.p>
         </div>
 
@@ -54,7 +55,7 @@ export default function Experience() {
                   <Briefcase className="w-4 h-4" />
                 </div>
                 <h3 className="font-sans font-extrabold text-xl text-zinc-100">
-                  Academic Experience
+                  Professional Experience
                 </h3>
               </div>
 
@@ -75,14 +76,26 @@ export default function Experience() {
                       <h4 className="font-sans font-bold text-base sm:text-lg text-zinc-100 group-hover:text-yellow-500">
                         {exp.role}
                       </h4>
-                      <span className="font-mono text-xs font-semibold text-yellow-600 text-yellow-400 bg-yellow-50 bg-yellow-950/30 px-2 py-0.5 rounded-md mt-1 sm:mt-0 w-fit">
+                      <span className="font-mono text-xs font-semibold text-yellow-400 bg-yellow-950/30 border border-yellow-800/30 px-2 py-0.5 rounded-md mt-1 sm:mt-0 w-fit">
                         {exp.period}
                       </span>
                     </div>
 
-                    <p className="font-mono text-xs text-zinc-400 mt-1 font-medium">
-                      {exp.company}
-                    </p>
+                    {exp.companyUrl ? (
+                      <a
+                        href={exp.companyUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center space-x-1.5 font-mono text-xs text-yellow-500 hover:text-yellow-400 font-semibold mt-1 transition-colors group/link w-fit underline decoration-yellow-500/40 hover:decoration-yellow-400"
+                      >
+                        <span>{exp.company}</span>
+                        <ExternalLink size={12} className="inline group-hover/link:translate-x-0.5 transition-transform" />
+                      </a>
+                    ) : (
+                      <p className="font-mono text-xs text-zinc-400 mt-1 font-medium">
+                        {exp.company}
+                      </p>
+                    )}
 
                     <ul className="mt-3 space-y-2">
                       {exp.bullets.map((bullet, bIdx) => (
@@ -165,9 +178,9 @@ export default function Experience() {
                   whileInView={{ opacity: 1, y: 0 }}
                   viewport={{ once: true }}
                   transition={{ delay: index * 0.1 }}
-                  className="rounded-xl border /50 border-zinc-900/80 /40 bg-zinc-900/20 p-5 hover:border-yellow-500/25 hover:transition-all duration-300 flex items-start space-x-4 group"
+                  className="rounded-xl border border-zinc-800/80 bg-[#131924] p-5 hover:border-yellow-500/30 transition-all duration-300 flex items-start space-x-4 group shadow-md"
                 >
-                  <div className="w-10 h-10 rounded-lg bg-yellow-50 bg-yellow-950/20 border border-yellow-200/20 border-yellow-850/20 flex items-center justify-center text-yellow-500 text-yellow-400 group-hover:scale-105 transition-transform duration-300">
+                  <div className="w-10 h-10 rounded-lg bg-yellow-500/10 border border-yellow-500/20 flex items-center justify-center text-yellow-400 group-hover:scale-105 transition-transform duration-300 shrink-0">
                     <Award className="w-5 h-5" />
                   </div>
                   <div className="flex-1">

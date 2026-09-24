@@ -7,8 +7,10 @@ export default function Hero() {
   return (
     <section
       id="home"
-      className="relative flex flex-col justify-center pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden bg-transparent"
+      className="relative flex flex-col justify-center pt-28 pb-12 sm:pt-32 sm:pb-14 lg:pt-36 lg:pb-16 overflow-hidden bg-[#0c0f15]"
     >
+      {/* Subtle ambient glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-yellow-500/5 blur-[120px] rounded-full pointer-events-none" />
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
         
         {/* Left Column - Text Content */}
@@ -93,7 +95,7 @@ export default function Hero() {
         </div>
 
         {/* Right Column - Image & Graphics */}
-        <div className="relative flex justify-center lg:justify-start lg:-ml-12 items-center h-full min-h-[400px] sm:min-h-[500px] mt-10 lg:mt-0">
+        <div className="relative flex justify-center lg:justify-start lg:-ml-12 items-center h-full min-h-[350px] sm:min-h-[420px] mt-6 lg:mt-0">
           
           {/* Portrait Image (Perfectly matches background #101318) */}
           <motion.img

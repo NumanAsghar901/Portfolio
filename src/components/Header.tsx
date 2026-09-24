@@ -29,7 +29,7 @@ export default function Header() {
       id="main-header"
       className={`fixed top-0 left-0 w-full z-50 transition-all duration-300 ${
         isScrolled
-          ? 'bg-[#101318]/90 backdrop-blur-md shadow-lg border-b border-zinc-800/50 py-4'
+          ? 'bg-[#0c0f15]/90 backdrop-blur-md shadow-lg border-b border-zinc-800/50 py-4'
           : 'bg-transparent py-6'
       }`}
     >

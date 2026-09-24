@@ -22,28 +22,30 @@ export default function Projects() {
   return (
     <section
       id="projects"
-      className="py-20 bg-transparent transition-colors duration-300 relative overflow-hidden"
+      className="py-12 sm:py-16 bg-[#151c28] border-y border-zinc-700/60 transition-colors duration-300 relative overflow-hidden"
     >
       {/* Visual background details */}
-      <div className="absolute bottom-0 right-0 w-80 h-80 bg-yellow-500/5 bg-yellow-600/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute top-0 right-10 w-96 h-96 bg-yellow-500/[0.03] blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-10 w-96 h-96 bg-emerald-500/[0.02] blur-3xl rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12" id="projects-header">
-          <motion.p
+        <div className="text-center max-w-3xl mx-auto mb-8" id="projects-header">
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
-            className="text-xs font-mono font-bold tracking-widest text-yellow-600 text-yellow-400 uppercase"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs font-mono font-bold tracking-widest text-yellow-400 uppercase mb-2"
           >
+            <Layers className="w-3.5 h-3.5" />
             Showcase
-          </motion.p>
+          </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100 mt-2"
+            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100"
           >
             Featured Engineering Projects
           </motion.h2>
@@ -52,14 +54,14 @@ export default function Projects() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.2 }}
-            className="text-zinc-400 mt-4 leading-relaxed"
+            className="text-zinc-400 mt-3 leading-relaxed"
           >
             A curated selection of academic, personal, and full-stack implementations designed for real-world operations and predictive accuracy.
           </motion.p>
         </div>
 
         {/* Filter Navigation Menu */}
-        <div className="flex flex-wrap items-center justify-center gap-3 mb-12" id="project-filters">
+        <div className="flex flex-wrap items-center justify-center gap-2.5 mb-8" id="project-filters">
           {filterTabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeFilter === tab.id;
@@ -69,8 +71,8 @@ export default function Projects() {
                 onClick={() => setActiveFilter(tab.id)}
                 className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 border focus:outline-none ${
                   isActive
-                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-650 text-white border-transparent shadow-yellow-550/20 scale-[1.02]'
-                    : 'bg-zinc-900 border-zinc-800 text-zinc-350 hover:border-zinc-350 hover:border-zinc-700 hover:hover:bg-zinc-800/50'
+                    ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white border-transparent shadow-yellow-500/20 scale-[1.02]'
+                    : 'bg-[#0d121c] border-zinc-700/60 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800/50'
                 }`}
                 id={`filter-${tab.id}`}
               >
@@ -84,7 +86,7 @@ export default function Projects() {
         {/* Projects Grid with layout transitions */}
         <motion.div
           layout
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
           id="project-grid"
         >
           <AnimatePresence mode="popLayout">
@@ -97,7 +99,7 @@ export default function Projects() {
                 exit={{ opacity: 0, scale: 0.9 }}
                 transition={{ duration: 0.4 }}
                 viewport={{ once: true }}
-                className="group flex flex-col h-full rounded-2xl bg-zinc-900 border /50 border-zinc-800/80 hover:border-yellow-500/30 hover:border-yellow-500/20 shadow-zinc-100 shadow-none hover:transition-all duration-300 relative overflow-hidden project-card-3d"
+                className="group flex flex-col h-full rounded-2xl bg-[#0d121c] border border-zinc-700/60 hover:border-yellow-500/40 shadow-xl transition-all duration-300 relative overflow-hidden project-card-3d"
               >
                 {/* Visual Accent Top Bar */}
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-emerald-450 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />

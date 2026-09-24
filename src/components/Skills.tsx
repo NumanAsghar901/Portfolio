@@ -17,28 +17,29 @@ export default function Skills() {
   return (
     <section
       id="skills"
-      className="py-20 bg-transparent transition-colors duration-300 relative overflow-hidden"
+      className="py-12 sm:py-16 bg-[#0c0f15] transition-colors duration-300 relative overflow-hidden"
     >
       {/* Background visual detail */}
-      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-64 h-64 bg-yellow-400/5 bg-yellow-500/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 left-0 -translate-y-1/2 w-80 h-80 bg-yellow-500/5 blur-3xl rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16" id="skills-header">
-          <motion.p
+        <div className="text-center max-w-3xl mx-auto mb-10" id="skills-header">
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
-            className="text-xs font-mono font-bold tracking-widest text-yellow-600 text-yellow-400 uppercase"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs font-mono font-bold tracking-widest text-yellow-400 uppercase mb-2"
           >
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400 animate-pulse" />
             Capabilities
-          </motion.p>
+          </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100 mt-2"
+            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100"
           >
             Technical Stack & Expertise
           </motion.h2>
@@ -47,14 +48,14 @@ export default function Skills() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.2 }}
-            className="text-zinc-400 mt-4 leading-relaxed"
+            className="text-zinc-400 mt-3 leading-relaxed"
           >
             Developing and optimizing pipelines across web systems, machine learning pipelines, and robust AI automation models.
           </motion.p>
         </div>
 
         {/* Skill Category Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="skills-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="skills-grid">
           {skillsData.map((category, index) => (
             <motion.div
               key={category.title}
@@ -62,7 +63,7 @@ export default function Skills() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, margin: '-100px' }}
               transition={{ delay: index * 0.1 }}
-              className="rounded-2xl border /50 border-zinc-900/80 /40 bg-zinc-900/20 p-6 hover:hover:border-yellow-500/20 hover:border-yellow-500/10 transition-all duration-300"
+              className="rounded-2xl border border-zinc-800/80 bg-[#141822] p-6 hover:border-yellow-500/30 transition-all duration-300 shadow-md"
             >
               {/* Category Title */}
               <div className="flex items-center space-x-3 mb-6">

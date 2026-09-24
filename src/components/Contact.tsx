@@ -69,7 +69,7 @@ export default function Contact() {
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch {
       setFormStatus('error');
-      setErrorMessage('Failed to send message. Please email me directly at asgharnuman5@gmail.com');
+      setErrorMessage('Failed to send message. Please email me directly at numanasghar901@gmail.com');
     }
   };
 
@@ -82,28 +82,29 @@ export default function Contact() {
   return (
     <section
       id="contact"
-      className="py-20 bg-transparent transition-colors duration-300 relative overflow-hidden"
+      className="py-12 sm:py-16 bg-[#0c0f15] transition-colors duration-300 relative overflow-hidden"
     >
       {/* Decorative details */}
-      <div className="absolute top-1/2 right-10 -translate-y-1/2 w-64 h-64 bg-yellow-500/5 bg-yellow-500/5 blur-3xl rounded-full pointer-events-none" />
+      <div className="absolute top-1/2 right-10 -translate-y-1/2 w-80 h-80 bg-yellow-500/5 blur-3xl rounded-full pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-16" id="contact-header">
-          <motion.p
+        <div className="text-center max-w-3xl mx-auto mb-10" id="contact-header">
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
-            className="text-xs font-mono font-bold tracking-widest text-yellow-600 text-yellow-400 uppercase"
+            className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-yellow-500/10 border border-yellow-500/20 text-xs font-mono font-bold tracking-widest text-yellow-400 uppercase mb-2"
           >
+            <Mail className="w-3.5 h-3.5" />
             Connection
-          </motion.p>
+          </motion.div>
           <motion.h2
             initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.1 }}
-            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100 mt-2"
+            className="text-3xl sm:text-4xl font-bold tracking-tight text-zinc-100"
           >
             Get In Touch
           </motion.h2>
@@ -112,17 +113,17 @@ export default function Contact() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-100px' }}
             transition={{ delay: 0.2 }}
-            className="text-zinc-400 mt-4 leading-relaxed"
+            className="text-zinc-400 mt-3 leading-relaxed"
           >
             Have a project in mind, an academic collaboration, or an automation query? Drop me a message below!
           </motion.p>
         </div>
 
         {/* Dual column: Info card on left, Form on right */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start" id="contact-grid">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start" id="contact-grid">
           {/* Contact Details Block */}
           <div className="lg:col-span-5 space-y-6" id="contact-info">
-            <div className="rounded-2xl border /50 border-zinc-900/80 bg-zinc-900 p-6 shadow-zinc-100 shadow-none space-y-8">
+            <div className="rounded-2xl border border-zinc-800/80 bg-[#131924] p-6 shadow-xl space-y-8">
               <h3 className="font-sans font-bold text-lg text-zinc-100">
                 Contact Information
               </h3>
@@ -140,7 +141,7 @@ export default function Contact() {
                     <div className="flex items-center space-x-2 mt-1">
                       <a
                         href={`mailto:${personalInfo.email}`}
-                        className="font-mono text-sm text-zinc-205 hover:text-yellow-500 hover:text-yellow-400 truncate block font-medium"
+                        className="font-mono text-sm text-zinc-200 hover:text-yellow-400 break-all block font-medium"
                       >
                         {personalInfo.email}
                       </a>
@@ -198,7 +199,7 @@ export default function Contact() {
 
           {/* Contact Form Block */}
           <div className="lg:col-span-7" id="contact-form-container">
-            <div className="rounded-2xl border /50 border-zinc-900/80 bg-zinc-900 p-6 sm:p-8 shadow-zinc-100 shadow-none relative">
+            <div className="rounded-2xl border border-zinc-800/80 bg-[#131924] p-6 sm:p-8 shadow-xl relative">
               <AnimatePresence mode="wait">
                 {formStatus === 'success' ? (
                   /* Success Feedback Page */

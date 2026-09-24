@@ -10,50 +10,47 @@ export default function Footer() {
   return (
     <footer
       id="main-footer"
-      className="bg-white dark:bg-zinc-950 border-t border-zinc-200/50 dark:border-zinc-900/50 py-12 transition-colors duration-300"
+      className="bg-[#0b0e13] border-t border-zinc-800/80 py-8 sm:py-10 transition-colors duration-300"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-between space-y-8 md:space-y-0 md:flex-row">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center justify-between space-y-6 md:space-y-0 md:flex-row">
         {/* Left Side: Logo Brand and short copyright */}
-        <div className="flex flex-col items-center md:items-start space-y-2 text-center md:text-left" id="footer-brand">
+        <div className="flex flex-col items-center md:items-start space-y-1.5 text-center md:text-left" id="footer-brand">
           <div className="flex items-center space-x-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 to-indigo-650 flex items-center justify-center text-white">
-              <Terminal className="w-4.5 h-4.5" />
-            </div>
-            <span className="font-sans font-bold text-zinc-900 dark:text-zinc-100">
-              Numan Asghar
+            <span className="font-script text-3xl text-yellow-500 hover:text-yellow-400 transition-colors">
+              Numan
             </span>
           </div>
-          <p className="font-sans text-xs text-zinc-500 dark:text-zinc-500 font-medium mt-1">
+          <p className="font-sans text-xs text-zinc-500 font-medium">
             © {new Date().getFullYear()} Muhammad Numan Asghar. All rights reserved.
           </p>
         </div>
 
         {/* Center Side: Social profiles */}
-        <div className="flex items-center space-x-5" id="footer-socials">
+        <div className="flex items-center space-x-4" id="footer-socials">
           <a
             href={personalInfo.github}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-850 text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-all duration-200 border border-zinc-200/20 dark:border-zinc-850/40"
+            className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-yellow-400 transition-all duration-200 border border-zinc-800 hover:border-yellow-500/30 shadow-sm"
             title="GitHub Portfolio"
           >
-            <Github className="w-5 h-5" />
+            <Github className="w-4.5 h-4.5" />
           </a>
           <a
             href={personalInfo.linkedin}
             target="_blank"
             rel="noopener noreferrer"
-            className="p-2.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-850 text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-all duration-200 border border-zinc-200/20 dark:border-zinc-850/40"
+            className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-yellow-400 transition-all duration-200 border border-zinc-800 hover:border-yellow-500/30 shadow-sm"
             title="LinkedIn Profile"
           >
-            <Linkedin className="w-5 h-5" />
+            <Linkedin className="w-4.5 h-4.5" />
           </a>
           <a
             href={`mailto:${personalInfo.email}`}
-            className="p-2.5 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-850 text-zinc-500 dark:text-zinc-400 hover:text-indigo-500 dark:hover:text-indigo-400 transition-all duration-200 border border-zinc-200/20 dark:border-zinc-850/40"
+            className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-yellow-400 transition-all duration-200 border border-zinc-800 hover:border-yellow-500/30 shadow-sm"
             title="Email"
           >
-            <Mail className="w-5 h-5" />
+            <Mail className="w-4.5 h-4.5" />
           </a>
         </div>
 
@@ -61,9 +58,10 @@ export default function Footer() {
         <div id="footer-back-to-top">
           <button
             onClick={scrollToTop}
-            className="p-3 rounded-xl bg-zinc-50 hover:bg-zinc-100 dark:bg-zinc-900 dark:hover:bg-zinc-850 text-zinc-600 dark:text-zinc-300 hover:text-indigo-500 dark:hover:text-indigo-400 transition-all duration-200 border border-zinc-200/20 dark:border-zinc-850/40 cursor-pointer"
+            className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-300 hover:text-yellow-400 transition-all duration-200 border border-zinc-800 hover:border-yellow-500/30 cursor-pointer shadow-sm flex items-center gap-2 text-xs font-medium"
             title="Scroll back to top"
           >
+            <span>Back to top</span>
             <ArrowUp className="w-4 h-4" />
           </button>
         </div>

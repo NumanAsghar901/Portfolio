@@ -11,7 +11,7 @@ import Footer from './components/Footer';
 
 export default function App() {
   return (
-    <div className="min-h-screen bg-[#101318] text-zinc-200 transition-colors duration-300 flex flex-col font-sans antialiased overflow-x-hidden selection:bg-yellow-500 selection:text-black">
+    <div className="min-h-screen bg-[#0c0f15] text-zinc-200 transition-colors duration-300 flex flex-col font-sans antialiased overflow-x-hidden selection:bg-yellow-500 selection:text-black">
       
 
 

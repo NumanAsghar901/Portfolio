@@ -6,7 +6,7 @@ export const personalInfo = {
   title: "Computer Science Student | FAST-NUCES",
   location: "FAST-NUCES, Faisalabad, Pakistan",
   phone: "(+92) 326-1192066",
-  email: "asgharnuman901@gmail.com",
+  email: "numanasghar901@gmail.com",
   portraitUrl: portraitImg,
   linkedin: "https://www.linkedin.com/in/numan-a-79587628a",
   github: "https://github.com/NumanAsghar901",
@@ -181,13 +181,56 @@ export const projectsData: Project[] = [
 
 export const experienceData: Experience[] = [
   {
+    role: "Software Engineer",
+    company: "Prop Firm Studios",
+    companyUrl: "https://propfirmstudios.com",
+    period: "2024 – Present",
+    bullets: [
+      "Engineered and scaled core platform features for proprietary trading firm operations, trader assessments, and account lifecycle management.",
+      "Developed high-performance, responsive full-stack dashboards using React, TypeScript, Node.js, and modern RESTful/WebSocket APIs.",
+      "Implemented automated trader evaluation logic, real-time risk parameter monitoring, and secure payment and verification workflows.",
+      "Optimized database architectures and caching layers to guarantee ultra-low latency execution and seamless user experiences.",
+    ],
+  },
+  {
+    role: "Full Stack & AI Automation Freelancer",
+    company: "Freelance / Self-Employed",
+    period: "2023 – Present",
+    bullets: [
+      "Designed and delivered bespoke full-stack web applications, SaaS prototypes, and custom client portals for global clients.",
+      "Architected autonomous AI workflows and intelligent integrations utilizing n8n, OpenAI/Anthropic APIs, webhooks, and Python scripts.",
+      "Built modern, accessible, and SEO-optimized web interfaces using React, Next.js, and Tailwind CSS, maintaining a 100% on-time delivery rate.",
+    ],
+  },
+  {
+    role: "Full Stack Engineer",
+    company: "Nexsoft Solutions",
+    period: "Jun 2026 – Sep 2026",
+    bullets: [
+      "Promoted to Full Stack Engineer following high-impact contributions as a Full Stack Developer Intern.",
+      "Developed and maintained scalable web applications, integrating modular React frontends with secure backend microservices.",
+      "Engineered RESTful APIs, optimized database schemas, and implemented role-based authentication and authorization.",
+      "Collaborated in Agile sprints with cross-functional teams to deliver end-to-end features, database integration, and production deployments.",
+    ],
+  },
+  {
+    role: "AI / ML Intern",
+    company: "QuantumLogics",
+    period: "Jul 2026 – Aug 2026",
+    bullets: [
+      "Assisted in developing end-to-end AI/ML solutions by preprocessing diverse real-world datasets and conducting exploratory data analysis.",
+      "Trained, benchmarked, and evaluated machine learning models for predictive classification and regression using Scikit-learn, Pandas, and NumPy.",
+      "Assisted in building API inference endpoints and data pipelines to integrate machine learning models into client-facing web services.",
+    ],
+  },
+  {
     role: "Teaching Assistant — Multivariable Calculus & Applied Calculus",
     company: "FAST-NUCES",
-    period: "September 2024 – June 2026",
+    period: "Sep 2024 – Jun 2026",
     bullets: [
-      "Graded 90+ assignments weekly for a class of 90+ students with 98% on-time turnaround.",
-      "Conducted weekly helper sessions for students.",
-      "Built FAST Academic Hub — a deployed web portal now used by FAST-NUCES TAs and students for streamlined marking and grading.",
+      "Graded 90+ assignments and assessments weekly for a cohort of 90+ undergraduate students with 98% on-time turnaround.",
+      "Conducted weekly helper clinics, tutorial sessions, and exam preparatory reviews for applied multivariable mathematics.",
+      "Engineered FAST Academic Hub — a deployed web portal actively used by FAST-NUCES TAs and students for grading and performance tracking.",
     ],
   },
 ];
