@@ -10,7 +10,7 @@ import industrialWebImg from './assets/images/industrial-website.png';
 
 export const personalInfo = {
   "name": "Muhammad Numan Asghar",
-  "title": "Software Engineer & AI Specialist | FAST-NUCES",
+  "title": "Computer Science Student | FAST-NUCES",
   "location": "FAST-NUCES, Faisalabad, Pakistan",
   "phone": "(+92) 326-1192066",
   "email": "numanasghar901@gmail.com",
@@ -26,35 +26,13 @@ export const personalInfo = {
   "yearsExp": "02+",
   "projectsCount": "10+",
   "awardsCount": "03+",
-  "heroGreeting": "Hello, I'm Numan Asghar 👋",
-  "heroHeadline": "FULL STACK DEVELOPER & AI AUTOMATION ARCHITECT",
+  "heroGreeting": "Hello, I'm Muhammad Numan Asghar 👋",
+  "heroHeadline": "I DESIGN & BUILD DIGITAL EXPERIENCES",
   "heroHeadlinePrefix": "I DESIGN & BUILD",
-  "heroHeadlineHighlight": "DIGITAL EXPERIENCES"
+  "heroHeadlineHighlight": "DIGITAL EXPERIENCES "
 };
 
 export const skillsData: SkillCategory[] = [
-  {
-    "title": "Programming",
-    "iconName": "Code2",
-    "skills": [
-      {
-        "name": "Python",
-        "level": 95
-      },
-      {
-        "name": "JavaScript / TypeScript",
-        "level": 90
-      },
-      {
-        "name": "C++",
-        "level": 95
-      },
-      {
-        "name": "SQL",
-        "level": 88
-      }
-    ]
-  },
   {
     "title": "Data Science & ML",
     "iconName": "BrainCircuit",
@@ -116,50 +94,50 @@ export const skillsData: SkillCategory[] = [
     "iconName": "Wrench",
     "skills": [
       {
-        "name": "MongoDB, Express, React, Node.js",
-        "level": 90
+        "name": "VS Code, AntiGravity, Cursor, Claude Code",
+        "level": 100
       },
       {
         "name": "Git & GitHub",
-        "level": 92
+        "level": 96
       },
       {
-        "name": "Streamlit",
-        "level": 88
+        "name": "Streamlit, Vercel, Render, Netlify",
+        "level": 100
       },
       {
         "name": "Docker",
         "level": 80
       },
       {
-        "name": "Jupyter Notebook",
-        "level": 90
+        "name": "Jupyter Notebook, Hostinger",
+        "level": 98
       }
     ]
   },
   {
-    "title": "Relevant Coursework",
-    "iconName": "GraduationCap",
+    "title": "Full-Stack Development",
+    "iconName": "Code2",
     "skills": [
       {
-        "name": "Data Structures & Algorithms",
-        "level": 95
+        "name": "HTML5, CSS3, JavaScript, Tailwind CSS",
+        "level": 96
       },
       {
-        "name": "Object Oriented Programming",
-        "level": 95
+        "name": "React.js, Next.js",
+        "level": 98
       },
       {
-        "name": "Database Systems",
-        "level": 90
+        "name": "Node.js, Express.js",
+        "level": 96
       },
       {
-        "name": "Operating Systems",
-        "level": 85
+        "name": "FAST APIs, REST APIs, Webhooks",
+        "level": 94
       },
       {
-        "name": "Machine Learning",
-        "level": 88
+        "name": "MongoDB, PostgreSQL, MySQL, Redis, Firebase",
+        "level": 98
       }
     ]
   }
@@ -183,6 +161,12 @@ export const defaultProjectCategories: ProjectCategory[] = [
     "name": "AI & Automation",
     "iconName": "Cpu",
     "description": "AI agents, LLM integrations & workflow automation"
+  },
+  {
+    "id": "freelance-projects",
+    "name": "Freelance Projects",
+    "iconName": "Code",
+    "description": ""
   }
 ];
 
@@ -193,9 +177,6 @@ export const projectsData: Project[] = [
     "subtitle": "TA & Student Marking Portal (MERN Stack)",
     "description": "A full-featured academic web portal for streamlining marking, grading, and feedback workflows at FAST-NUCES.",
     "category": "web",
-    "categories": [
-      "web"
-    ],
     "tech": [
       "React",
       "Node.js",
@@ -204,7 +185,10 @@ export const projectsData: Project[] = [
       "Tailwind CSS"
     ],
     "imageUrl": fastHubImg,
-    "liveUrl": "https://fast-academic-hub-nu.vercel.app/"
+    "liveUrl": "https://fast-academic-hub-nu.vercel.app/",
+    "categories": [
+      "web"
+    ]
   },
   {
     "id": "student-marks-prediction",
@@ -212,9 +196,6 @@ export const projectsData: Project[] = [
     "subtitle": "Data Science & Machine Learning",
     "description": "Regression pipeline predicting student exam marks across three question types with an interactive Streamlit app.",
     "category": "ml",
-    "categories": [
-      "ml"
-    ],
     "tech": [
       "Python",
       "Scikit-learn",
@@ -224,7 +205,10 @@ export const projectsData: Project[] = [
     ],
     "imageUrl": studentMarksImg,
     "liveUrl": "https://ds-marks-prediction.streamlit.app/",
-    "githubUrl": "https://github.com/NumanAsghar901"
+    "githubUrl": "https://github.com/NumanAsghar901",
+    "categories": [
+      "ml"
+    ]
   },
   {
     "id": "customer-churn-prediction",
@@ -232,10 +216,6 @@ export const projectsData: Project[] = [
     "subtitle": "Machine Learning Pipeline",
     "description": "Multi-model classification pipeline to predict customer churn in enterprise systems with comprehensive evaluation.",
     "category": "ml",
-    "categories": [
-      "ml",
-      "ai"
-    ],
     "tech": [
       "Python",
       "Scikit-learn",
@@ -244,7 +224,10 @@ export const projectsData: Project[] = [
       "Seaborn"
     ],
     "imageUrl": churnPredImg,
-    "githubUrl": "https://github.com/NumanAsghar901"
+    "githubUrl": "https://github.com/NumanAsghar901",
+    "categories": [
+      "ml"
+    ]
   },
   {
     "id": "ai-internship-hunter",
@@ -252,10 +235,6 @@ export const projectsData: Project[] = [
     "subtitle": "n8n + AI Orchestration",
     "description": "AI-powered automation workflow using n8n to collect, filter, and match relevant internship opportunities.",
     "category": "ai",
-    "categories": [
-      "ai",
-      "web"
-    ],
     "tech": [
       "n8n",
       "LLM Integration",
@@ -264,7 +243,10 @@ export const projectsData: Project[] = [
       "Automation"
     ],
     "imageUrl": aiHunterImg,
-    "githubUrl": "https://github.com/NumanAsghar901"
+    "githubUrl": "https://github.com/NumanAsghar901",
+    "categories": [
+      "ai"
+    ]
   },
   {
     "id": "na-invoice-generator",
@@ -272,9 +254,6 @@ export const projectsData: Project[] = [
     "subtitle": "HTML, CSS, JavaScript Web App",
     "description": "Web-based tool for creating and downloading professional invoices with dynamic calculations and PDF export.",
     "category": "web",
-    "categories": [
-      "web"
-    ],
     "tech": [
       "HTML5",
       "CSS3",
@@ -284,25 +263,10 @@ export const projectsData: Project[] = [
     ],
     "imageUrl": invoiceGenImg,
     "liveUrl": "https://na-invoice-generator.vercel.app",
-    "githubUrl": "https://github.com/NumanAsghar901"
-  },
-  {
-    "id": "memory-matching-game",
-    "title": "Memory Matching Game",
-    "subtitle": "Interactive Client-Side Web App",
-    "description": "Browser-based matching card game with dynamic DOM updates, state handling, move counter, and timer.",
-    "category": "web",
+    "githubUrl": "https://github.com/NumanAsghar901",
     "categories": [
       "web"
-    ],
-    "tech": [
-      "HTML5",
-      "CSS3",
-      "JavaScript"
-    ],
-    "imageUrl": memoryGameImg,
-    "liveUrl": "https://memory-matching-game-beta.vercel.app/",
-    "githubUrl": "https://github.com/NumanAsghar901"
+    ]
   },
   {
     "id": "industrial-website",
@@ -310,9 +274,6 @@ export const projectsData: Project[] = [
     "subtitle": "Responsive Multi-Page Web App",
     "description": "Responsive multi-page corporate portal highlighting company services, capabilities, and multimedia assets.",
     "category": "web",
-    "categories": [
-      "web"
-    ],
     "tech": [
       "HTML5",
       "CSS3",
@@ -321,7 +282,10 @@ export const projectsData: Project[] = [
     ],
     "imageUrl": industrialWebImg,
     "liveUrl": "https://industral-website.vercel.app/",
-    "githubUrl": "https://github.com/NumanAsghar901"
+    "githubUrl": "https://github.com/NumanAsghar901",
+    "categories": [
+      "web"
+    ]
   }
 ];
 
@@ -330,18 +294,17 @@ export const experienceData: Experience[] = [
     "role": "Software Engineer",
     "company": "Prop Firm Studios",
     "companyUrl": "https://propfirmstudios.com",
-    "period": "2024 – Present",
+    "period": "2026 – Present",
     "bullets": [
-      "Engineered and scaled core platform features for proprietary trading firm operations, trader assessments, and account lifecycle management.",
-      "Developed high-performance, responsive full-stack dashboards using React, TypeScript, Node.js, and modern RESTful/WebSocket APIs.",
-      "Implemented automated trader evaluation logic, real-time risk parameter monitoring, and secure payment and verification workflows.",
-      "Optimized database architectures and caching layers to guarantee ultra-low latency execution and seamless user experiences."
+      "Engineering and scaling core platform features for proprietary trading firm operations, trader assessments, and account lifecycle management.",
+      "Developing high-performance, responsive full-stack dashboards using React, TypeScript, Node.js, and modern RESTful/WebSocket APIs.",
+      "Implementing automated trader evaluation logic, real-time risk parameter monitoring, and secure payment and verification workflows."
     ]
   },
   {
-    "role": "Full Stack & AI Automation Freelancer",
+    "role": "Web & App Freelancer",
     "company": "Freelance / Self-Employed",
-    "period": "2023 – Present",
+    "period": "2025 – Present",
     "bullets": [
       "Designed and delivered bespoke full-stack web applications, SaaS prototypes, and custom client portals for global clients.",
       "Architected autonomous AI workflows and intelligent integrations utilizing n8n, OpenAI/Anthropic APIs, webhooks, and Python scripts.",
@@ -349,11 +312,10 @@ export const experienceData: Experience[] = [
     ]
   },
   {
-    "role": "Full Stack Engineer",
+    "role": "Full Stack Developer Intern",
     "company": "Nexsoft Solutions",
     "period": "Jun 2026 – Sep 2026",
     "bullets": [
-      "Promoted to Full Stack Engineer following high-impact contributions as a Full Stack Developer Intern.",
       "Developed and maintained scalable web applications, integrating modular React frontends with secure backend microservices.",
       "Engineered RESTful APIs, optimized database schemas, and implemented role-based authentication and authorization.",
       "Collaborated in Agile sprints with cross-functional teams to deliver end-to-end features, database integration, and production deployments."
@@ -374,7 +336,7 @@ export const experienceData: Experience[] = [
     "company": "FAST-NUCES",
     "period": "Sep 2024 – Jun 2026",
     "bullets": [
-      "Graded 90+ assignments and assessments weekly for a cohort of 90+ undergraduate students with 98% on-time turnaround.",
+      "Graded 100+ assignments and assessments weekly for a cohort of 90+ undergraduate students with 98% on-time turnaround.",
       "Conducted weekly helper clinics, tutorial sessions, and exam preparatory reviews for applied multivariable mathematics.",
       "Engineered FAST Academic Hub — a deployed web portal actively used by FAST-NUCES TAs and students for grading and performance tracking."
     ]
