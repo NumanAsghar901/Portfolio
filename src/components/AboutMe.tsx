@@ -8,6 +8,20 @@ export default function AboutMe() {
 
   const renderAboutHeadline = (text?: string) => {
     const rawText = text || 'Engineering With Passion While Exploring AI & Web.';
+    if (/\*[^*]+\*/.test(rawText) || /\[[^\]]+\]/.test(rawText)) {
+      const parts = rawText.split(/(\*[^*]+\*|\[[^\]]+\])/g);
+      return parts.map((part, index) => {
+        if ((part.startsWith('*') && part.endsWith('*')) || (part.startsWith('[') && part.endsWith(']'))) {
+          return (
+            <span key={index} className="text-yellow-500 font-bold">
+              {part.slice(1, -1)}
+            </span>
+          );
+        }
+        return <React.Fragment key={index}>{part}</React.Fragment>;
+      });
+    }
+
     const parts = rawText.split(/(passion)/i);
     return parts.map((part, index) =>
       part.toLowerCase() === 'passion' ? (

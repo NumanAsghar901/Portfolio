@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Copy, Check } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, CheckCircle2, AlertCircle, Copy, Check, Github, Linkedin } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 
 export default function Contact() {
@@ -45,7 +45,7 @@ export default function Contact() {
     setFormStatus('sending');
 
     try {
-      const response = await fetch('https://formsubmit.co/ajax/asgharnuman5@gmail.com', {
+      const response = await fetch(`https://formsubmit.co/ajax/${encodeURIComponent(personalInfo.email)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -70,7 +70,7 @@ export default function Contact() {
       setFormData({ name: '', email: '', subject: '', message: '' });
     } catch {
       setFormStatus('error');
-      setErrorMessage('Failed to send message. Please email me directly at numanasghar901@gmail.com');
+      setErrorMessage(`Failed to send message. Please email me directly at ${personalInfo.email}`);
     }
   };
 
@@ -190,10 +190,54 @@ export default function Contact() {
                       Location / Campus
                     </p>
                     <p className="font-sans text-sm text-zinc-200 mt-1 font-medium">
-                      Faisalabad, Pakistan (FAST-NUCES)
+                      {personalInfo.location || 'Faisalabad, Pakistan (FAST-NUCES)'}
                     </p>
                   </div>
                 </div>
+
+                {/* GitHub profile */}
+                {personalInfo.github && (
+                  <div className="flex items-start space-x-4">
+                    <div className="w-10 h-10 rounded-xl bg-zinc-800/80 border border-zinc-700/50 flex items-center justify-center text-zinc-300 shrink-0">
+                      <Github className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sans text-xs text-zinc-400 font-semibold uppercase tracking-wider">
+                        GitHub Profile
+                      </p>
+                      <a
+                        href={personalInfo.github}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-sm text-zinc-200 hover:text-yellow-400 mt-1 block font-medium truncate"
+                      >
+                        {personalInfo.github.replace(/^https?:\/\/(www\.)?/, '')}
+                      </a>
+                    </div>
+                  </div>
+                )}
+
+                {/* LinkedIn profile */}
+                {personalInfo.linkedin && (
+                  <div className="flex items-start space-x-4">
+                    <div className="w-10 h-10 rounded-xl bg-blue-950/30 border border-blue-900/40 flex items-center justify-center text-blue-400 shrink-0">
+                      <Linkedin className="w-5 h-5" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sans text-xs text-zinc-400 font-semibold uppercase tracking-wider">
+                        LinkedIn Profile
+                      </p>
+                      <a
+                        href={personalInfo.linkedin}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-mono text-sm text-zinc-200 hover:text-blue-400 mt-1 block font-medium truncate"
+                      >
+                        {personalInfo.linkedin.replace(/^https?:\/\/(www\.)?/, '')}
+                      </a>
+                    </div>
+                  </div>
+                )}
               </div>
             </div>
           </div>

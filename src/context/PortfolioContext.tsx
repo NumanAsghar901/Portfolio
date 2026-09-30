@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import {
   Project,
+  ProjectCategory,
   SkillCategory,
   Experience,
   Education,
@@ -14,6 +15,7 @@ import {
   personalInfo as defaultPersonalInfo,
   skillsData as defaultSkillsData,
   projectsData as defaultProjectsData,
+  defaultProjectCategories,
   experienceData as defaultExperienceData,
   educationData as defaultEducationData,
   achievementsData as defaultAchievementsData,
@@ -25,6 +27,7 @@ const STORAGE_KEYS = {
   PERSONAL_INFO: 'portfolio_personal_info_v2',
   SKILLS: 'portfolio_skills_data_v2',
   PROJECTS: 'portfolio_projects_data_v2',
+  PROJECT_CATEGORIES: 'portfolio_project_categories_v2',
   EXPERIENCE: 'portfolio_experience_data_v2',
   EDUCATION: 'portfolio_education_data_v2',
   ACHIEVEMENTS: 'portfolio_achievements_data_v2',
@@ -35,6 +38,7 @@ const STORAGE_KEYS = {
 // Initial extended PersonalInfo defaults
 const initialPersonalInfo: PersonalInfo = {
   ...defaultPersonalInfo,
+  brandName: 'Numan',
   aboutTitle: 'Engineering With Passion While Exploring AI & Web.',
   aboutSubtitle:
     "I'm Numan Asghar, a Full Stack Developer & AI Specialist based in Faisalabad. I have a passion for creating scalable web applications and intelligent automation workflows.",
@@ -63,6 +67,10 @@ interface PortfolioContextType {
   addProject: (project: Project) => void;
   updateProject: (id: string, project: Project) => void;
   deleteProject: (id: string) => void;
+  projectCategories: ProjectCategory[];
+  addProjectCategory: (category: ProjectCategory) => void;
+  updateProjectCategory: (id: string, category: ProjectCategory) => void;
+  deleteProjectCategory: (id: string) => void;
   experienceData: Experience[];
   addExperience: (exp: Experience) => void;
   updateExperience: (index: number, exp: Experience) => void;
@@ -90,16 +98,56 @@ interface PortfolioContextType {
 
 const PortfolioContext = createContext<PortfolioContextType | null>(null);
 
+function safeSaveStorage<T>(key: string, value: T): boolean {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    window.dispatchEvent(new CustomEvent('portfolio_data_sync', { detail: { key } }));
+    return true;
+  } catch (err) {
+    console.error(`Failed to save ${key} to localStorage:`, err);
+    return false;
+  }
+}
+
 function loadFromStorage<T>(key: string, defaultValue: T): T {
   try {
     const saved = localStorage.getItem(key);
     if (saved) {
-      return JSON.parse(saved);
+      const parsed = JSON.parse(saved);
+      if (typeof defaultValue === 'object' && defaultValue !== null && !Array.isArray(defaultValue)) {
+        return { ...defaultValue, ...parsed };
+      }
+      if (Array.isArray(defaultValue) && Array.isArray(parsed)) {
+        return parsed.length > 0 ? (parsed as unknown as T) : defaultValue;
+      }
+      return parsed;
     }
   } catch (e) {
     console.error(`Error loading ${key} from localStorage`, e);
   }
   return defaultValue;
+}
+
+function normalizeProjects(projects: any[]): Project[] {
+  if (!Array.isArray(projects)) return defaultProjectsData;
+  return projects.map((p) => {
+    let categories: string[] = [];
+    if (Array.isArray(p.categories) && p.categories.length > 0) {
+      categories = p.categories.filter((c: any) => typeof c === 'string' && c.trim().length > 0);
+    } else if (typeof p.category === 'string' && p.category.trim().length > 0) {
+      categories = [p.category.trim()];
+    } else {
+      categories = ['web'];
+    }
+    if (categories.length === 0) {
+      categories = ['web'];
+    }
+    return {
+      ...p,
+      categories,
+      category: categories[0] || 'web',
+    };
+  });
 }
 
 export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -111,8 +159,12 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     loadFromStorage(STORAGE_KEYS.SKILLS, defaultSkillsData)
   );
 
+  const [projectCategories, setProjectCategoriesState] = useState<ProjectCategory[]>(() =>
+    loadFromStorage(STORAGE_KEYS.PROJECT_CATEGORIES, defaultProjectCategories)
+  );
+
   const [projectsData, setProjectsDataState] = useState<Project[]>(() =>
-    loadFromStorage(STORAGE_KEYS.PROJECTS, defaultProjectsData)
+    normalizeProjects(loadFromStorage(STORAGE_KEYS.PROJECTS, defaultProjectsData))
   );
 
   const [experienceData, setExperienceDataState] = useState<Experience[]>(() =>
@@ -140,29 +192,44 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const handleStorageChange = (e: StorageEvent) => {
       if (!e.key) return;
       try {
-        if (e.key === STORAGE_KEYS.PERSONAL_INFO && e.newValue) {
-          setPersonalInfoState(JSON.parse(e.newValue));
+        if (e.key === STORAGE_KEYS.PERSONAL_INFO) {
+          if (e.newValue) {
+            setPersonalInfoState((prev) => ({ ...initialPersonalInfo, ...JSON.parse(e.newValue!) }));
+          } else {
+            setPersonalInfoState(initialPersonalInfo);
+          }
         }
-        if (e.key === STORAGE_KEYS.SKILLS && e.newValue) {
-          setSkillsDataState(JSON.parse(e.newValue));
+        if (e.key === STORAGE_KEYS.SKILLS) {
+          if (e.newValue) setSkillsDataState(JSON.parse(e.newValue));
+          else setSkillsDataState(defaultSkillsData);
         }
-        if (e.key === STORAGE_KEYS.PROJECTS && e.newValue) {
-          setProjectsDataState(JSON.parse(e.newValue));
+        if (e.key === STORAGE_KEYS.PROJECT_CATEGORIES) {
+          if (e.newValue) setProjectCategoriesState(JSON.parse(e.newValue));
+          else setProjectCategoriesState(defaultProjectCategories);
         }
-        if (e.key === STORAGE_KEYS.EXPERIENCE && e.newValue) {
-          setExperienceDataState(JSON.parse(e.newValue));
+        if (e.key === STORAGE_KEYS.PROJECTS) {
+          if (e.newValue) setProjectsDataState(normalizeProjects(JSON.parse(e.newValue)));
+          else setProjectsDataState(defaultProjectsData);
         }
-        if (e.key === STORAGE_KEYS.EDUCATION && e.newValue) {
-          setEducationDataState(JSON.parse(e.newValue));
+        if (e.key === STORAGE_KEYS.EXPERIENCE) {
+          if (e.newValue) setExperienceDataState(JSON.parse(e.newValue));
+          else setExperienceDataState(defaultExperienceData);
         }
-        if (e.key === STORAGE_KEYS.ACHIEVEMENTS && e.newValue) {
-          setAchievementsDataState(JSON.parse(e.newValue));
+        if (e.key === STORAGE_KEYS.EDUCATION) {
+          if (e.newValue) setEducationDataState(JSON.parse(e.newValue));
+          else setEducationDataState(defaultEducationData);
         }
-        if (e.key === STORAGE_KEYS.INTERESTS && e.newValue) {
-          setInterestsDataState(JSON.parse(e.newValue));
+        if (e.key === STORAGE_KEYS.ACHIEVEMENTS) {
+          if (e.newValue) setAchievementsDataState(JSON.parse(e.newValue));
+          else setAchievementsDataState(defaultAchievementsData);
         }
-        if (e.key === STORAGE_KEYS.CV_METADATA && e.newValue) {
-          setCvMetadataState(JSON.parse(e.newValue));
+        if (e.key === STORAGE_KEYS.INTERESTS) {
+          if (e.newValue) setInterestsDataState(JSON.parse(e.newValue));
+          else setInterestsDataState(defaultInterestsData as Interest[]);
+        }
+        if (e.key === STORAGE_KEYS.CV_METADATA) {
+          if (e.newValue) setCvMetadataState(JSON.parse(e.newValue));
+          else setCvMetadataState(null);
         }
       } catch (err) {
         console.error('Storage sync error:', err);
@@ -177,7 +244,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const updatePersonalInfo = (info: Partial<PersonalInfo>) => {
     setPersonalInfoState((prev) => {
       const updated = { ...prev, ...info };
-      localStorage.setItem(STORAGE_KEYS.PERSONAL_INFO, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.PERSONAL_INFO, updated);
       return updated;
     });
   };
@@ -186,7 +253,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const addSkillCategory = (cat: SkillCategory) => {
     setSkillsDataState((prev) => {
       const updated = [...prev, cat];
-      localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.SKILLS, updated);
       return updated;
     });
   };
@@ -195,7 +262,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setSkillsDataState((prev) => {
       const updated = [...prev];
       updated[index] = cat;
-      localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.SKILLS, updated);
       return updated;
     });
   };
@@ -203,7 +270,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const deleteSkillCategory = (index: number) => {
     setSkillsDataState((prev) => {
       const updated = prev.filter((_, i) => i !== index);
-      localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.SKILLS, updated);
       return updated;
     });
   };
@@ -214,7 +281,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const cat = { ...updated[catIndex] };
       cat.skills = [...cat.skills, skill];
       updated[catIndex] = cat;
-      localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.SKILLS, updated);
       return updated;
     });
   };
@@ -227,7 +294,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       skillsCopy[skillIndex] = skill;
       cat.skills = skillsCopy;
       updated[catIndex] = cat;
-      localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.SKILLS, updated);
       return updated;
     });
   };
@@ -238,24 +305,40 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       const cat = { ...updated[catIndex] };
       cat.skills = cat.skills.filter((_, i) => i !== skillIndex);
       updated[catIndex] = cat;
-      localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.SKILLS, updated);
       return updated;
     });
   };
 
   // Projects
   const addProject = (project: Project) => {
+    const rawCats = Array.isArray(project.categories) && project.categories.length > 0
+      ? project.categories
+      : (project.category ? [project.category] : ['web']);
+    const normalized: Project = {
+      ...project,
+      categories: rawCats,
+      category: rawCats[0] || 'web',
+    };
     setProjectsDataState((prev) => {
-      const updated = [project, ...prev];
-      localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(updated));
+      const updated = [normalized, ...prev];
+      safeSaveStorage(STORAGE_KEYS.PROJECTS, updated);
       return updated;
     });
   };
 
   const updateProject = (id: string, project: Project) => {
+    const rawCats = Array.isArray(project.categories) && project.categories.length > 0
+      ? project.categories
+      : (project.category ? [project.category] : ['web']);
+    const normalized: Project = {
+      ...project,
+      categories: rawCats,
+      category: rawCats[0] || 'web',
+    };
     setProjectsDataState((prev) => {
-      const updated = prev.map((p) => (p.id === id ? project : p));
-      localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(updated));
+      const updated = prev.map((p) => (p.id === id ? normalized : p));
+      safeSaveStorage(STORAGE_KEYS.PROJECTS, updated);
       return updated;
     });
   };
@@ -263,8 +346,67 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const deleteProject = (id: string) => {
     setProjectsDataState((prev) => {
       const updated = prev.filter((p) => p.id !== id);
-      localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.PROJECTS, updated);
       return updated;
+    });
+  };
+
+  // Project Categories CRUD
+  const addProjectCategory = (category: ProjectCategory) => {
+    setProjectCategoriesState((prev) => {
+      if (prev.some((c) => c.id === category.id)) {
+        return prev;
+      }
+      const updated = [...prev, category];
+      safeSaveStorage(STORAGE_KEYS.PROJECT_CATEGORIES, updated);
+      return updated;
+    });
+  };
+
+  const updateProjectCategory = (id: string, category: ProjectCategory) => {
+    setProjectCategoriesState((prev) => {
+      const updated = prev.map((c) => (c.id === id ? category : c));
+      safeSaveStorage(STORAGE_KEYS.PROJECT_CATEGORIES, updated);
+      return updated;
+    });
+    // If ID changed, migrate projects referencing old category ID
+    if (id !== category.id) {
+      setProjectsDataState((prev) => {
+        const updatedProjects = prev.map((p) => {
+          const currentCats = p.categories || [p.category || 'web'];
+          const newCats = currentCats.map((cid) => (cid === id ? category.id : cid));
+          return {
+            ...p,
+            categories: newCats,
+            category: newCats[0] || 'web',
+          };
+        });
+        safeSaveStorage(STORAGE_KEYS.PROJECTS, updatedProjects);
+        return updatedProjects;
+      });
+    }
+  };
+
+  const deleteProjectCategory = (id: string) => {
+    setProjectCategoriesState((prev) => {
+      const updated = prev.filter((c) => c.id !== id);
+      safeSaveStorage(STORAGE_KEYS.PROJECT_CATEGORIES, updated);
+      return updated;
+    });
+    // Update any projects referencing the deleted category
+    setProjectsDataState((prev) => {
+      const updatedProjects = prev.map((p) => {
+        const currentCats = p.categories || [p.category || 'web'];
+        const remaining = currentCats.filter((cid) => cid !== id);
+        const finalCats = remaining.length > 0 ? remaining : ['web'];
+        return {
+          ...p,
+          categories: finalCats,
+          category: finalCats[0] || 'web',
+        };
+      });
+      safeSaveStorage(STORAGE_KEYS.PROJECTS, updatedProjects);
+      return updatedProjects;
     });
   };
 
@@ -272,7 +414,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const addExperience = (exp: Experience) => {
     setExperienceDataState((prev) => {
       const updated = [exp, ...prev];
-      localStorage.setItem(STORAGE_KEYS.EXPERIENCE, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.EXPERIENCE, updated);
       return updated;
     });
   };
@@ -281,7 +423,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setExperienceDataState((prev) => {
       const updated = [...prev];
       updated[index] = exp;
-      localStorage.setItem(STORAGE_KEYS.EXPERIENCE, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.EXPERIENCE, updated);
       return updated;
     });
   };
@@ -289,7 +431,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const deleteExperience = (index: number) => {
     setExperienceDataState((prev) => {
       const updated = prev.filter((_, i) => i !== index);
-      localStorage.setItem(STORAGE_KEYS.EXPERIENCE, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.EXPERIENCE, updated);
       return updated;
     });
   };
@@ -298,7 +440,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const addEducation = (edu: Education) => {
     setEducationDataState((prev) => {
       const updated = [edu, ...prev];
-      localStorage.setItem(STORAGE_KEYS.EDUCATION, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.EDUCATION, updated);
       return updated;
     });
   };
@@ -307,7 +449,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setEducationDataState((prev) => {
       const updated = [...prev];
       updated[index] = edu;
-      localStorage.setItem(STORAGE_KEYS.EDUCATION, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.EDUCATION, updated);
       return updated;
     });
   };
@@ -315,7 +457,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const deleteEducation = (index: number) => {
     setEducationDataState((prev) => {
       const updated = prev.filter((_, i) => i !== index);
-      localStorage.setItem(STORAGE_KEYS.EDUCATION, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.EDUCATION, updated);
       return updated;
     });
   };
@@ -324,7 +466,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const addAchievement = (ach: Achievement) => {
     setAchievementsDataState((prev) => {
       const updated = [ach, ...prev];
-      localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.ACHIEVEMENTS, updated);
       return updated;
     });
   };
@@ -333,7 +475,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setAchievementsDataState((prev) => {
       const updated = [...prev];
       updated[index] = ach;
-      localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.ACHIEVEMENTS, updated);
       return updated;
     });
   };
@@ -341,7 +483,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const deleteAchievement = (index: number) => {
     setAchievementsDataState((prev) => {
       const updated = prev.filter((_, i) => i !== index);
-      localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.ACHIEVEMENTS, updated);
       return updated;
     });
   };
@@ -350,7 +492,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const addInterest = (interest: Interest) => {
     setInterestsDataState((prev) => {
       const updated = [...prev, interest];
-      localStorage.setItem(STORAGE_KEYS.INTERESTS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.INTERESTS, updated);
       return updated;
     });
   };
@@ -359,7 +501,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setInterestsDataState((prev) => {
       const updated = [...prev];
       updated[index] = interest;
-      localStorage.setItem(STORAGE_KEYS.INTERESTS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.INTERESTS, updated);
       return updated;
     });
   };
@@ -367,7 +509,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const deleteInterest = (index: number) => {
     setInterestsDataState((prev) => {
       const updated = prev.filter((_, i) => i !== index);
-      localStorage.setItem(STORAGE_KEYS.INTERESTS, JSON.stringify(updated));
+      safeSaveStorage(STORAGE_KEYS.INTERESTS, updated);
       return updated;
     });
   };
@@ -381,13 +523,18 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
       updatedAt: record.updatedAt,
     };
     setCvMetadataState(meta);
-    localStorage.setItem(STORAGE_KEYS.CV_METADATA, JSON.stringify(meta));
+    safeSaveStorage(STORAGE_KEYS.CV_METADATA, meta);
   };
 
   const deleteCv = async () => {
     await deleteCvFile();
     setCvMetadataState(null);
-    localStorage.removeItem(STORAGE_KEYS.CV_METADATA);
+    try {
+      localStorage.removeItem(STORAGE_KEYS.CV_METADATA);
+      window.dispatchEvent(new CustomEvent('portfolio_data_sync', { detail: { key: STORAGE_KEYS.CV_METADATA } }));
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const downloadCv = async () => {
@@ -406,7 +553,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         document.body.removeChild(a);
         setTimeout(() => URL.revokeObjectURL(url), 3000);
       } else {
-        // Standard verified static PDF file served by web server (no Chrome warnings)
+        // Standard verified static PDF file served by web server
         const a = document.createElement('a');
         a.href = '/Numan_Asghar_CV.pdf';
         a.download = 'Muhammad_Numan_Asghar_CV.pdf';
@@ -422,18 +569,25 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   };
 
   const resetToDefaults = async () => {
-    localStorage.removeItem(STORAGE_KEYS.PERSONAL_INFO);
-    localStorage.removeItem(STORAGE_KEYS.SKILLS);
-    localStorage.removeItem(STORAGE_KEYS.PROJECTS);
-    localStorage.removeItem(STORAGE_KEYS.EXPERIENCE);
-    localStorage.removeItem(STORAGE_KEYS.EDUCATION);
-    localStorage.removeItem(STORAGE_KEYS.ACHIEVEMENTS);
-    localStorage.removeItem(STORAGE_KEYS.INTERESTS);
-    localStorage.removeItem(STORAGE_KEYS.CV_METADATA);
+    try {
+      localStorage.removeItem(STORAGE_KEYS.PERSONAL_INFO);
+      localStorage.removeItem(STORAGE_KEYS.SKILLS);
+      localStorage.removeItem(STORAGE_KEYS.PROJECTS);
+      localStorage.removeItem(STORAGE_KEYS.PROJECT_CATEGORIES);
+      localStorage.removeItem(STORAGE_KEYS.EXPERIENCE);
+      localStorage.removeItem(STORAGE_KEYS.EDUCATION);
+      localStorage.removeItem(STORAGE_KEYS.ACHIEVEMENTS);
+      localStorage.removeItem(STORAGE_KEYS.INTERESTS);
+      localStorage.removeItem(STORAGE_KEYS.CV_METADATA);
+      window.dispatchEvent(new CustomEvent('portfolio_data_sync', { detail: { key: 'ALL_RESET' } }));
+    } catch (e) {
+      console.error(e);
+    }
     await deleteCvFile();
 
     setPersonalInfoState(initialPersonalInfo);
     setSkillsDataState(defaultSkillsData);
+    setProjectCategoriesState(defaultProjectCategories);
     setProjectsDataState(defaultProjectsData);
     setExperienceDataState(defaultExperienceData);
     setEducationDataState(defaultEducationData);
@@ -446,6 +600,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     const data = {
       personalInfo,
       skillsData,
+      projectCategories,
       projectsData,
       experienceData,
       educationData,
@@ -460,32 +615,38 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     try {
       const data = JSON.parse(json);
       if (data.personalInfo) {
-        setPersonalInfoState(data.personalInfo);
-        localStorage.setItem(STORAGE_KEYS.PERSONAL_INFO, JSON.stringify(data.personalInfo));
+        const mergedPersonal = { ...initialPersonalInfo, ...data.personalInfo };
+        setPersonalInfoState(mergedPersonal);
+        safeSaveStorage(STORAGE_KEYS.PERSONAL_INFO, mergedPersonal);
       }
-      if (data.skillsData) {
+      if (data.skillsData && Array.isArray(data.skillsData)) {
         setSkillsDataState(data.skillsData);
-        localStorage.setItem(STORAGE_KEYS.SKILLS, JSON.stringify(data.skillsData));
+        safeSaveStorage(STORAGE_KEYS.SKILLS, data.skillsData);
       }
-      if (data.projectsData) {
-        setProjectsDataState(data.projectsData);
-        localStorage.setItem(STORAGE_KEYS.PROJECTS, JSON.stringify(data.projectsData));
+      if (data.projectCategories && Array.isArray(data.projectCategories)) {
+        setProjectCategoriesState(data.projectCategories);
+        safeSaveStorage(STORAGE_KEYS.PROJECT_CATEGORIES, data.projectCategories);
       }
-      if (data.experienceData) {
+      if (data.projectsData && Array.isArray(data.projectsData)) {
+        const normalized = normalizeProjects(data.projectsData);
+        setProjectsDataState(normalized);
+        safeSaveStorage(STORAGE_KEYS.PROJECTS, normalized);
+      }
+      if (data.experienceData && Array.isArray(data.experienceData)) {
         setExperienceDataState(data.experienceData);
-        localStorage.setItem(STORAGE_KEYS.EXPERIENCE, JSON.stringify(data.experienceData));
+        safeSaveStorage(STORAGE_KEYS.EXPERIENCE, data.experienceData);
       }
-      if (data.educationData) {
+      if (data.educationData && Array.isArray(data.educationData)) {
         setEducationDataState(data.educationData);
-        localStorage.setItem(STORAGE_KEYS.EDUCATION, JSON.stringify(data.educationData));
+        safeSaveStorage(STORAGE_KEYS.EDUCATION, data.educationData);
       }
-      if (data.achievementsData) {
+      if (data.achievementsData && Array.isArray(data.achievementsData)) {
         setAchievementsDataState(data.achievementsData);
-        localStorage.setItem(STORAGE_KEYS.ACHIEVEMENTS, JSON.stringify(data.achievementsData));
+        safeSaveStorage(STORAGE_KEYS.ACHIEVEMENTS, data.achievementsData);
       }
-      if (data.interestsData) {
+      if (data.interestsData && Array.isArray(data.interestsData)) {
         setInterestsDataState(data.interestsData);
-        localStorage.setItem(STORAGE_KEYS.INTERESTS, JSON.stringify(data.interestsData));
+        safeSaveStorage(STORAGE_KEYS.INTERESTS, data.interestsData);
       }
       return true;
     } catch (e) {
@@ -510,6 +671,10 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         addProject,
         updateProject,
         deleteProject,
+        projectCategories,
+        addProjectCategory,
+        updateProjectCategory,
+        deleteProjectCategory,
         experienceData,
         addExperience,
         updateExperience,

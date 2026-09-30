@@ -78,7 +78,7 @@ export default function Header() {
           id="logo"
         >
           <span className="font-script text-4xl text-yellow-500 hover:text-yellow-400 transition-colors">
-            {personalInfo.name.split(' ')[1] || personalInfo.name.split(' ')[0] || 'Numan'}
+            {personalInfo.brandName || personalInfo.name.split(' ')[0] || 'Numan'}
           </span>
         </a>
 

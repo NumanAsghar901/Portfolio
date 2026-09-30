@@ -1,23 +1,45 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { ExternalLink, Github, Layers, Search, Code, Cpu, BrainCircuit } from 'lucide-react';
+import * as LucideIcons from 'lucide-react';
+import { ExternalLink, Github, Layers } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Project } from '../types';
 
 export default function Projects() {
-  const { projectsData } = usePortfolio();
-  const [activeFilter, setActiveFilter] = useState<'all' | 'web' | 'ml' | 'ai'>('all');
+  const { projectsData, projectCategories } = usePortfolio();
+  const [activeFilter, setActiveFilter] = useState<string>('all');
+
+  const getCategoryIcon = (iconName?: string) => {
+    if (!iconName) return Layers;
+    const Icon = (LucideIcons as any)[iconName];
+    return Icon || Layers;
+  };
 
   const filterTabs = [
-    { id: 'all', name: 'All Projects', icon: Layers },
-    { id: 'web', name: 'MERN & Web', icon: Code },
-    { id: 'ml', name: 'ML & Data Science', icon: BrainCircuit },
-    { id: 'ai', name: 'AI & Automation', icon: Cpu },
-  ] as const;
+    {
+      id: 'all',
+      name: 'All Projects',
+      icon: Layers,
+      count: projectsData.length,
+    },
+    ...projectCategories.map((cat) => ({
+      id: cat.id,
+      name: cat.name,
+      icon: getCategoryIcon(cat.iconName),
+      count: projectsData.filter((project) => {
+        const cats = project.categories && project.categories.length > 0
+          ? project.categories
+          : [project.category || 'web'];
+        return cats.includes(cat.id);
+      }).length,
+    })),
+  ];
 
   const filteredProjects = projectsData.filter((project) => {
     if (activeFilter === 'all') return true;
-    return project.category === activeFilter;
+    const cats = project.categories && project.categories.length > 0
+      ? project.categories
+      : [project.category || 'web'];
+    return cats.includes(activeFilter);
   });
 
   return (
@@ -70,15 +92,22 @@ export default function Projects() {
               <button
                 key={tab.id}
                 onClick={() => setActiveFilter(tab.id)}
-                className={`flex items-center space-x-2 px-4 py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 border focus:outline-none ${
+                className={`flex items-center space-x-2 px-3.5 py-2 sm:px-4 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-all duration-300 border focus:outline-none cursor-pointer ${
                   isActive
                     ? 'bg-gradient-to-r from-yellow-500 to-yellow-600 text-white border-transparent shadow-yellow-500/20 scale-[1.02]'
                     : 'bg-[#0d121c] border-zinc-700/60 text-zinc-300 hover:border-zinc-600 hover:bg-zinc-800/50'
                 }`}
                 id={`filter-${tab.id}`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-zinc-400'}`} />
+                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-yellow-400/80'}`} />
                 <span>{tab.name}</span>
+                <span
+                  className={`text-[10px] font-mono px-1.5 py-0.5 rounded-full ${
+                    isActive ? 'bg-black/30 text-white' : 'bg-zinc-800 text-zinc-400'
+                  }`}
+                >
+                  {tab.count}
+                </span>
               </button>
             );
           })}
@@ -90,49 +119,76 @@ export default function Projects() {
           className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
           id="project-grid"
         >
-          <AnimatePresence mode="popLayout">
-            {filteredProjects.map((project) => (
-              <motion.div
-                layout
-                key={project.id}
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.9 }}
-                transition={{ duration: 0.4 }}
-                viewport={{ once: true }}
-                className="group flex flex-col h-full rounded-2xl bg-[#0d121c] border border-zinc-700/60 hover:border-yellow-500/40 shadow-xl transition-all duration-300 relative overflow-hidden project-card-3d"
+          {filteredProjects.length === 0 && (
+            <div className="col-span-full py-16 text-center text-zinc-400">
+              <Layers className="w-12 h-12 mx-auto text-zinc-600 mb-3 opacity-60" />
+              <p className="text-base font-semibold text-zinc-200">No projects found in this category.</p>
+              <p className="text-xs text-zinc-400 mt-1">Try selecting a different filter or reset to view all projects.</p>
+              <button
+                onClick={() => setActiveFilter('all')}
+                className="mt-4 px-4 py-2 text-xs font-semibold rounded-xl bg-yellow-500 text-black hover:bg-yellow-400 transition-colors cursor-pointer"
               >
-                {/* Visual Accent Top Bar */}
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
+                Show All Projects
+              </button>
+            </div>
+          )}
 
-                {/* Top Half: Project Image Preview */}
-                <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-950 border-b border-zinc-800/80">
-                  {project.imageUrl ? (
-                    <img
-                      src={project.imageUrl}
-                      alt={project.title}
-                      className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center bg-zinc-900/60 text-zinc-600">
-                      <Layers className="w-10 h-10" />
+          <AnimatePresence mode="popLayout">
+            {filteredProjects.map((project) => {
+              const projectCats = project.categories && project.categories.length > 0
+                ? project.categories
+                : [project.category || 'web'];
+
+              return (
+                <motion.div
+                  layout
+                  key={project.id}
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0, scale: 0.9 }}
+                  transition={{ duration: 0.4 }}
+                  viewport={{ once: true }}
+                  className="group flex flex-col h-full rounded-2xl bg-[#0d121c] border border-zinc-700/60 hover:border-yellow-500/40 shadow-xl transition-all duration-300 relative overflow-hidden project-card-3d"
+                >
+                  {/* Visual Accent Top Bar */}
+                  <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-emerald-400 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-20" />
+
+                  {/* Top Half: Project Image Preview */}
+                  <div className="relative aspect-[16/10] w-full overflow-hidden bg-zinc-950 border-b border-zinc-800/80">
+                    {project.imageUrl ? (
+                      <img
+                        src={project.imageUrl}
+                        alt={project.title}
+                        className="w-full h-full object-cover object-top group-hover:scale-105 transition-transform duration-500"
+                        loading="lazy"
+                        onError={(e) => {
+                          (e.currentTarget as HTMLImageElement).style.opacity = '0.3';
+                        }}
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-zinc-900/60 text-zinc-600">
+                        <Layers className="w-10 h-10" />
+                      </div>
+                    )}
+
+                    {/* Dark gradient overlay at bottom of image for seamless blending */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0d121c] via-transparent to-black/30 pointer-events-none" />
+
+                    {/* Category Pill Tags floating on top left */}
+                    <div className="absolute top-3 left-3 z-10 flex flex-wrap gap-1.5 max-w-[70%]">
+                      {projectCats.map((catId) => {
+                        const catObj = projectCategories.find((c) => c.id === catId);
+                        const displayName = catObj ? catObj.name : catId.toUpperCase();
+                        return (
+                          <span
+                            key={catId}
+                            className="font-mono text-[10px] uppercase font-bold tracking-wider text-yellow-400 bg-zinc-950/90 backdrop-blur-md border border-yellow-500/30 px-2 py-0.5 rounded-md shadow-lg inline-flex items-center"
+                          >
+                            {displayName}
+                          </span>
+                        );
+                      })}
                     </div>
-                  )}
-
-                  {/* Dark gradient overlay at bottom of image for seamless blending */}
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0d121c] via-transparent to-black/30 pointer-events-none" />
-
-                  {/* Category Pill Tag floating on top left */}
-                  <div className="absolute top-3 left-3 z-10">
-                    <span className="font-mono text-[10px] uppercase font-bold tracking-widest text-yellow-400 bg-zinc-950/85 backdrop-blur-md border border-yellow-500/30 px-2.5 py-1 rounded-md shadow-lg inline-block">
-                      {project.category === 'web'
-                        ? 'MERN & WEB DEV'
-                        : project.category === 'ml'
-                        ? 'MACHINE LEARNING'
-                        : 'AI & AUTOMATION'}
-                    </span>
-                  </div>
 
                   {/* Action Links floating on top right */}
                   <div className="absolute top-3 right-3 z-10 flex items-center space-x-1.5">
@@ -189,7 +245,8 @@ export default function Projects() {
                   </div>
                 </div>
               </motion.div>
-            ))}
+            );
+          })}
           </AnimatePresence>
         </motion.div>
       </div>

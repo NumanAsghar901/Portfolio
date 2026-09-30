@@ -148,12 +148,21 @@ export default function Experience() {
                       {edu.institution}
                     </p>
 
-                    <div className="mt-2.5 flex items-center space-x-2">
-                      <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-                      <span className="font-sans text-sm font-medium text-emerald-600 text-emerald-400">
-                        Currently Enrolled
-                      </span>
-                    </div>
+                    {edu.period.toLowerCase().includes('present') || edu.period.toLowerCase().includes('current') ? (
+                      <div className="mt-2.5 flex items-center space-x-2">
+                        <span className="inline-block w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+                        <span className="font-sans text-sm font-medium text-emerald-400">
+                          Currently Enrolled
+                        </span>
+                      </div>
+                    ) : (
+                      <div className="mt-2.5 flex items-center space-x-2">
+                        <span className="inline-block w-1.5 h-1.5 rounded-full bg-zinc-500" />
+                        <span className="font-sans text-xs font-medium text-zinc-400">
+                          Completed / Degree Conferred
+                        </span>
+                      </div>
+                    )}
                   </motion.div>
                 ))}
               </div>

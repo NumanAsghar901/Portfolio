@@ -2,6 +2,7 @@ import React from 'react';
 import { motion } from 'motion/react';
 import { Download, ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import defaultPortrait from '../assets/images/im.png';
 
 export default function Hero() {
   const { personalInfo, downloadCv } = usePortfolio();
@@ -117,7 +118,10 @@ export default function Hero() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.8, delay: 0.3 }}
-            src={personalInfo.portraitUrl}
+            src={personalInfo.portraitUrl || defaultPortrait}
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).src = defaultPortrait;
+            }}
             alt={personalInfo.name}
             className="relative z-10 w-full max-w-[500px] sm:max-w-[580px] md:max-w-[640px] lg:max-w-[780px] xl:max-w-[850px] object-contain drop-shadow-2xl lg:-ml-8 block -mb-1"
           />

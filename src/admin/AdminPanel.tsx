@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react';
+import * as LucideIcons from 'lucide-react';
 import {
   ShieldCheck,
   User,
@@ -24,16 +25,24 @@ import {
   Save,
   CheckCircle2,
   FolderOpen,
+  Mail,
+  Phone,
+  MapPin,
+  Tags,
+  Tag,
+  Search,
+  Filter,
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
-import { Project, SkillCategory, Experience, Education, Achievement, Interest, Skill } from '../types';
+import { Project, ProjectCategory, SkillCategory, Experience, Education, Achievement, Interest, Skill } from '../types';
+import { compressImage } from '../utils/imageOptimizer';
 
 interface AdminPanelProps {
-  onBackToPortfolio: () => void;
+  onBackToPortfolio: (section?: string) => void;
   onLogout: () => void;
 }
 
-type TabType = 'hero' | 'about' | 'skills' | 'projects' | 'experience' | 'interests' | 'settings';
+type TabType = 'hero' | 'about' | 'skills' | 'projects' | 'experience' | 'interests' | 'contact' | 'settings';
 
 export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelProps) {
   const {
@@ -50,6 +59,10 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
     addProject,
     updateProject,
     deleteProject,
+    projectCategories,
+    addProjectCategory,
+    updateProjectCategory,
+    deleteProjectCategory,
     experienceData,
     addExperience,
     updateExperience,
@@ -109,20 +122,26 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
     }
   };
 
-  // Image Upload helper for project / portrait images
+  // Image Upload helper for project / portrait images with automatic optimization
   const handleImageUploadHelper = (callback: (dataUrl: string) => void) => {
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = 'image/*';
-    input.onchange = (e) => {
+    input.onchange = async (e) => {
       const file = (e.target as HTMLInputElement).files?.[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (uploadEvent) => {
-          const res = uploadEvent.target?.result as string;
-          if (res) callback(res);
-        };
-        reader.readAsDataURL(file);
+        try {
+          const compressed = await compressImage(file, 1200, 1200, 0.85);
+          callback(compressed);
+        } catch (err) {
+          console.error('Image compression failed, using fallback:', err);
+          const reader = new FileReader();
+          reader.onload = (uploadEvent) => {
+            const res = uploadEvent.target?.result as string;
+            if (res) callback(res);
+          };
+          reader.readAsDataURL(file);
+        }
       }
     };
     input.click();
@@ -131,6 +150,18 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
   // ==========================================
   // MODALS STATE
   // ==========================================
+  // Helper to safely render category icon
+  const getCategoryIconComponent = (iconName?: string, className = 'w-4 h-4') => {
+    if (!iconName) return <Layers className={className} />;
+    const Comp = (LucideIcons as any)[iconName];
+    if (Comp) return <Comp className={className} />;
+    return <Layers className={className} />;
+  };
+
+  // Admin Project Filtering & Search
+  const [adminProjectCategoryFilter, setAdminProjectCategoryFilter] = useState('all');
+  const [adminProjectSearch, setAdminProjectSearch] = useState('');
+
   // Project Modal
   const [projectModalOpen, setProjectModalOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
@@ -140,39 +171,125 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
     subtitle: '',
     description: '',
     category: 'web',
+    categories: ['web'],
     tech: [],
     imageUrl: '',
     liveUrl: '',
     githubUrl: '',
   });
   const [techInput, setTechInput] = useState('');
+  const [showQuickAddCat, setShowQuickAddCat] = useState(false);
+  const [quickCatName, setQuickCatName] = useState('');
+
+  // Project Category Management Modal
+  const [manageCategoriesModalOpen, setManageCategoriesModalOpen] = useState(false);
+  const [projCategoryModalOpen, setProjCategoryModalOpen] = useState(false);
+  const [editingProjCategory, setEditingProjCategory] = useState<ProjectCategory | null>(null);
+  const [projCategoryForm, setProjCategoryForm] = useState<ProjectCategory>({
+    id: '',
+    name: '',
+    iconName: 'Code',
+    description: '',
+  });
 
   const openAddProjectModal = () => {
     setEditingProject(null);
+    const defaultCatId = projectCategories[0]?.id || 'web';
     setProjectForm({
       id: 'proj-' + Date.now(),
       title: '',
       subtitle: '',
       description: '',
-      category: 'web',
+      category: defaultCatId,
+      categories: [defaultCatId],
       tech: ['React', 'Node.js'],
       imageUrl: '',
       liveUrl: '',
       githubUrl: '',
     });
     setTechInput('React, Node.js');
+    setShowQuickAddCat(false);
+    setQuickCatName('');
     setProjectModalOpen(true);
   };
 
   const openEditProjectModal = (proj: Project) => {
     setEditingProject(proj);
-    setProjectForm({ ...proj });
+    const initialCats = Array.isArray(proj.categories) && proj.categories.length > 0
+      ? proj.categories
+      : (proj.category ? [proj.category] : ['web']);
+    setProjectForm({
+      ...proj,
+      categories: initialCats,
+      category: initialCats[0] || 'web',
+    });
     setTechInput(proj.tech.join(', '));
+    setShowQuickAddCat(false);
+    setQuickCatName('');
     setProjectModalOpen(true);
+  };
+
+  const toggleCategoryInForm = (catId: string) => {
+    setProjectForm((prev) => {
+      const current = prev.categories || (prev.category ? [prev.category] : []);
+      const exists = current.includes(catId);
+      let next: string[];
+      if (exists) {
+        next = current.filter((id) => id !== catId);
+      } else {
+        next = [...current, catId];
+      }
+      return {
+        ...prev,
+        categories: next,
+        category: next[0] || '',
+      };
+    });
+  };
+
+  const handleQuickAddCategory = () => {
+    const trimmed = quickCatName.trim();
+    if (!trimmed) return;
+    const slug = trimmed
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/(^-|-$)/g, '');
+    const finalId = slug || 'cat-' + Date.now();
+
+    if (!projectCategories.some((c) => c.id === finalId)) {
+      addProjectCategory({
+        id: finalId,
+        name: trimmed,
+        iconName: 'Code',
+        description: '',
+      });
+      showToast(`Category "${trimmed}" created!`);
+    }
+
+    setProjectForm((prev) => {
+      const current = prev.categories || [];
+      if (!current.includes(finalId)) {
+        const next = [...current, finalId];
+        return {
+          ...prev,
+          categories: next,
+          category: next[0] || finalId,
+        };
+      }
+      return prev;
+    });
+
+    setQuickCatName('');
+    setShowQuickAddCat(false);
   };
 
   const handleSaveProject = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!projectForm.categories || projectForm.categories.length === 0) {
+      alert('Please select at least one category for this project.');
+      return;
+    }
+
     const finalTech = techInput
       .split(',')
       .map((t) => t.trim())
@@ -180,6 +297,8 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
 
     const projectToSave: Project = {
       ...projectForm,
+      categories: projectForm.categories,
+      category: projectForm.categories[0] || 'web',
       tech: finalTech,
     };
 
@@ -191,6 +310,79 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
       showToast('New project created successfully!');
     }
     setProjectModalOpen(false);
+  };
+
+  // Category Management Handlers
+  const openAddProjCategoryModal = () => {
+    setEditingProjCategory(null);
+    setProjCategoryForm({
+      id: '',
+      name: '',
+      iconName: 'Code',
+      description: '',
+    });
+    setProjCategoryModalOpen(true);
+  };
+
+  const openEditProjCategoryModal = (cat: ProjectCategory) => {
+    setEditingProjCategory(cat);
+    setProjCategoryForm({ ...cat });
+    setProjCategoryModalOpen(true);
+  };
+
+  const handleSaveProjCategory = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmedName = projCategoryForm.name.trim();
+    if (!trimmedName) {
+      alert('Category name is required.');
+      return;
+    }
+
+    let finalId = projCategoryForm.id.trim();
+    if (!finalId) {
+      finalId = trimmedName
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
+    if (!finalId) finalId = 'cat-' + Date.now();
+
+    if (editingProjCategory) {
+      updateProjectCategory(editingProjCategory.id, {
+        ...projCategoryForm,
+        id: finalId,
+        name: trimmedName,
+      });
+      showToast('Category updated successfully!');
+    } else {
+      if (projectCategories.some((c) => c.id === finalId)) {
+        alert(`A category with ID "${finalId}" already exists. Please choose a different ID or name.`);
+        return;
+      }
+      addProjectCategory({
+        ...projCategoryForm,
+        id: finalId,
+        name: trimmedName,
+      });
+      showToast('Category created successfully!');
+    }
+    setProjCategoryModalOpen(false);
+  };
+
+  const handleDeleteProjCategory = (catId: string, catName: string) => {
+    const usageCount = projectsData.filter((p) => {
+      const cats = p.categories || [p.category || 'web'];
+      return cats.includes(catId);
+    }).length;
+
+    const confirmMsg = usageCount > 0
+      ? `Category "${catName}" is assigned to ${usageCount} project(s). Deleting it will remove this category from those projects. Continue?`
+      : `Delete category "${catName}"?`;
+
+    if (confirm(confirmMsg)) {
+      deleteProjectCategory(catId);
+      showToast(`Category "${catName}" deleted.`);
+    }
   };
 
   // Skill Category Modal
@@ -437,17 +629,28 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
 
         <div className="flex items-center space-x-2 sm:space-x-3">
           <button
-            onClick={onBackToPortfolio}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition-colors"
+            onClick={() => onBackToPortfolio('/')}
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition-colors cursor-pointer"
             title="View Live Portfolio"
           >
             <Eye size={14} />
             <span className="hidden sm:inline">Live Portfolio</span>
           </button>
 
+          <a
+            href="/#home"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 text-xs font-medium transition-colors cursor-pointer"
+            title="Open Live Website in a new browser tab"
+          >
+            <ExternalLink size={14} />
+            <span className="hidden sm:inline">Open in New Tab</span>
+          </a>
+
           <button
             onClick={onLogout}
-            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 text-xs font-medium transition-colors"
+            className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 hover:text-rose-300 border border-rose-500/20 text-xs font-medium transition-colors cursor-pointer"
             title="Sign out of admin"
           >
             <LogOut size={14} />
@@ -467,6 +670,7 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
             { id: 'projects', name: 'Featured Projects', icon: Layers },
             { id: 'experience', name: 'Experience & Education', icon: Briefcase },
             { id: 'interests', name: 'Areas of Interest', icon: Heart },
+            { id: 'contact', name: 'Contact & Social Info', icon: Mail },
             { id: 'settings', name: 'Backup & Factory Reset', icon: RefreshCw },
           ].map((tab) => {
             const Icon = tab.icon;
@@ -587,11 +791,25 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
+                  updatePersonalInfo(personalInfo);
                   showToast('Hero details updated successfully!');
                 }}
                 className="space-y-5"
               >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                      Brand / Logo Text (Header & Footer)
+                    </label>
+                    <input
+                      type="text"
+                      value={personalInfo.brandName || ''}
+                      onChange={(e) => updatePersonalInfo({ brandName: e.target.value })}
+                      placeholder="e.g. Numan (or leave blank to use first name)"
+                      className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                    />
+                  </div>
+
                   <div>
                     <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
                       Hero Greeting / Badge Text
@@ -760,7 +978,7 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                 <div className="flex items-center justify-end space-x-3 pt-2">
                   <button
                     type="button"
-                    onClick={onBackToPortfolio}
+                    onClick={() => onBackToPortfolio('/#home')}
                     className="flex items-center space-x-1.5 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
                   >
                     <Eye size={15} />
@@ -796,6 +1014,7 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
               <form
                 onSubmit={(e) => {
                   e.preventDefault();
+                  updatePersonalInfo(personalInfo);
                   showToast('About Me details saved!');
                 }}
                 className="space-y-5"
@@ -891,7 +1110,7 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                 <div className="flex items-center justify-end space-x-3 pt-2">
                   <button
                     type="button"
-                    onClick={onBackToPortfolio}
+                    onClick={() => onBackToPortfolio('/#about')}
                     className="flex items-center space-x-1.5 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
                   >
                     <Eye size={15} />
@@ -924,14 +1143,24 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                     Add, edit, or delete skill categories and individual proficiency meters.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={openAddCatModal}
-                  className="flex items-center space-x-1.5 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs rounded-xl transition-all cursor-pointer w-fit"
-                >
-                  <Plus size={16} />
-                  <span>Add Category</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => onBackToPortfolio('/#skills')}
+                    className="flex items-center space-x-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-xl transition-colors cursor-pointer"
+                  >
+                    <Eye size={14} />
+                    <span>View on Website</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openAddCatModal}
+                    className="flex items-center space-x-1.5 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs rounded-xl transition-all cursor-pointer w-fit"
+                  >
+                    <Plus size={16} />
+                    <span>Add Category</span>
+                  </button>
+                </div>
               </div>
 
               {/* Categories Grid */}
@@ -1034,120 +1263,286 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
           {/* ======================================================== */}
           {/* TAB 4: FEATURED PROJECTS */}
           {/* ======================================================== */}
-          {activeTab === 'projects' && (
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-                <div>
-                  <h2 className="text-xl font-bold text-white flex items-center space-x-2">
-                    <Layers className="text-yellow-400" size={22} />
-                    <span>Featured Engineering Projects</span>
-                  </h2>
-                  <p className="text-xs text-zinc-400 mt-1">
-                    Manage projects, categories, screenshots, and live demo / github links.
-                  </p>
+          {activeTab === 'projects' && (() => {
+            const adminFilteredProjects = projectsData.filter((project) => {
+              const projectCats = project.categories && project.categories.length > 0
+                ? project.categories
+                : [project.category || 'web'];
+              const matchesCategory =
+                adminProjectCategoryFilter === 'all' || projectCats.includes(adminProjectCategoryFilter);
+              const query = adminProjectSearch.toLowerCase().trim();
+              const matchesSearch =
+                !query ||
+                project.title.toLowerCase().includes(query) ||
+                project.subtitle.toLowerCase().includes(query) ||
+                project.tech.some((t) => t.toLowerCase().includes(query)) ||
+                projectCats.some((cid) => {
+                  const cObj = projectCategories.find((c) => c.id === cid);
+                  return cObj?.name.toLowerCase().includes(query) || cid.toLowerCase().includes(query);
+                });
+              return matchesCategory && matchesSearch;
+            });
+
+            return (
+              <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-bold text-white flex items-center space-x-2">
+                      <Layers className="text-yellow-400" size={22} />
+                      <span>Featured Engineering Projects</span>
+                    </h2>
+                    <p className="text-xs text-zinc-400 mt-1">
+                      Manage projects, multiple category assignments, screenshots, and live demo / github links.
+                    </p>
+                  </div>
+                  <div className="flex flex-wrap items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => onBackToPortfolio('/#projects')}
+                      className="flex items-center space-x-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-xl transition-colors cursor-pointer"
+                    >
+                      <Eye size={14} />
+                      <span>View on Website</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setManageCategoriesModalOpen(true)}
+                      className="flex items-center space-x-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-yellow-400 text-xs font-medium rounded-xl border border-yellow-500/20 hover:border-yellow-500/40 transition-all cursor-pointer"
+                    >
+                      <Tags size={14} />
+                      <span>Manage Categories ({projectCategories.length})</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openAddProjectModal}
+                      className="flex items-center space-x-1.5 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs rounded-xl transition-all cursor-pointer w-fit"
+                    >
+                      <Plus size={16} />
+                      <span>Add Project</span>
+                    </button>
+                  </div>
                 </div>
-                <button
-                  type="button"
-                  onClick={openAddProjectModal}
-                  className="flex items-center space-x-1.5 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs rounded-xl transition-all cursor-pointer w-fit"
-                >
-                  <Plus size={16} />
-                  <span>Add Project</span>
-                </button>
-              </div>
 
-              {/* Projects List */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {projectsData.map((project) => (
-                  <div
-                    key={project.id}
-                    className="p-4 rounded-2xl bg-[#090d14] border border-zinc-800/80 flex flex-col justify-between space-y-4 hover:border-yellow-500/30 transition-all"
-                  >
-                    <div>
-                      {project.imageUrl && (
-                        <div className="w-full h-36 rounded-xl overflow-hidden bg-zinc-950 mb-3 border border-zinc-800 relative">
-                          <img
-                            src={project.imageUrl}
-                            alt={project.title}
-                            className="w-full h-full object-cover object-top"
-                          />
-                          <span className="absolute top-2 left-2 text-[10px] font-mono font-bold uppercase bg-black/80 text-yellow-400 px-2 py-0.5 rounded border border-yellow-500/30">
-                            {project.category}
-                          </span>
-                        </div>
+                {/* Filter & Search Bar */}
+                <div className="p-3.5 rounded-2xl bg-[#090d14] border border-zinc-800 space-y-3">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
+                    {/* Search box */}
+                    <div className="relative flex-1 max-w-md">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-zinc-500" />
+                      <input
+                        type="text"
+                        value={adminProjectSearch}
+                        onChange={(e) => setAdminProjectSearch(e.target.value)}
+                        placeholder="Search projects by title, subtitle, or tech..."
+                        className="w-full pl-9 pr-8 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-xs text-zinc-100 placeholder-zinc-500 focus:border-yellow-500 focus:outline-none"
+                      />
+                      {adminProjectSearch && (
+                        <button
+                          type="button"
+                          onClick={() => setAdminProjectSearch('')}
+                          className="absolute right-2.5 top-1/2 -translate-y-1/2 text-zinc-500 hover:text-zinc-300"
+                        >
+                          <X size={14} />
+                        </button>
                       )}
-
-                      <h3 className="font-bold text-base text-zinc-100">{project.title}</h3>
-                      <p className="text-xs text-yellow-500/90 font-mono mt-0.5">{project.subtitle}</p>
-                      <p className="text-xs text-zinc-400 mt-2 line-clamp-2 leading-relaxed">
-                        {project.description}
-                      </p>
-
-                      <div className="flex flex-wrap gap-1 mt-3">
-                        {project.tech.map((t) => (
-                          <span
-                            key={t}
-                            className="text-[10px] font-medium bg-zinc-800/80 text-zinc-300 px-2 py-0.5 rounded border border-zinc-700/40"
-                          >
-                            {t}
-                          </span>
-                        ))}
-                      </div>
                     </div>
 
-                    <div className="pt-3 border-t border-zinc-800 flex items-center justify-between">
-                      <div className="flex items-center space-x-2 text-xs">
-                        {project.liveUrl && (
-                          <a
-                            href={project.liveUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-zinc-400 hover:text-white flex items-center space-x-1"
-                          >
-                            <span>Live</span>
-                            <ExternalLink size={12} />
-                          </a>
-                        )}
-                        {project.githubUrl && (
-                          <a
-                            href={project.githubUrl}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-zinc-400 hover:text-white flex items-center space-x-1"
-                          >
-                            <span>GitHub</span>
-                            <ExternalLink size={12} />
-                          </a>
-                        )}
-                      </div>
-
-                      <div className="flex items-center space-x-1.5">
-                        <button
-                          onClick={() => openEditProjectModal(project)}
-                          className="p-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-xs"
-                          title="Edit Project"
-                        >
-                          <Edit size={14} />
-                        </button>
-                        <button
-                          onClick={() => {
-                            if (confirm(`Delete project "${project.title}"?`)) {
-                              deleteProject(project.id);
-                              showToast('Project deleted.');
-                            }
-                          }}
-                          className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs"
-                          title="Delete Project"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                    <div className="text-xs text-zinc-400 font-mono self-center">
+                      Showing <span className="text-yellow-400 font-bold">{adminFilteredProjects.length}</span> of {projectsData.length} projects
                     </div>
                   </div>
-                ))}
+
+                  {/* Category Filter Pills */}
+                  <div className="flex flex-wrap items-center gap-1.5 pt-1">
+                    <button
+                      type="button"
+                      onClick={() => setAdminProjectCategoryFilter('all')}
+                      className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer border ${
+                        adminProjectCategoryFilter === 'all'
+                          ? 'bg-yellow-500 text-black border-yellow-500 font-semibold'
+                          : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:border-zinc-700'
+                      }`}
+                    >
+                      All ({projectsData.length})
+                    </button>
+                    {projectCategories.map((cat) => {
+                      const count = projectsData.filter((p) => {
+                        const cats = p.categories && p.categories.length > 0 ? p.categories : [p.category || 'web'];
+                        return cats.includes(cat.id);
+                      }).length;
+                      const isActive = adminProjectCategoryFilter === cat.id;
+
+                      return (
+                        <button
+                          key={cat.id}
+                          type="button"
+                          onClick={() => setAdminProjectCategoryFilter(cat.id)}
+                          className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all cursor-pointer border ${
+                            isActive
+                              ? 'bg-yellow-500 text-black border-yellow-500 font-semibold'
+                              : 'bg-zinc-900 text-zinc-400 border-zinc-800 hover:text-zinc-200 hover:border-zinc-700'
+                          }`}
+                        >
+                          {getCategoryIconComponent(cat.iconName, 'w-3 h-3')}
+                          <span>{cat.name}</span>
+                          <span className={`text-[10px] font-mono px-1 rounded ${isActive ? 'bg-black/20 text-black' : 'bg-zinc-800 text-zinc-400'}`}>
+                            {count}
+                          </span>
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+
+                {/* Empty State */}
+                {adminFilteredProjects.length === 0 && (
+                  <div className="p-12 text-center rounded-2xl bg-[#090d14] border border-zinc-800/80">
+                    <Layers className="w-12 h-12 mx-auto text-zinc-600 mb-3 opacity-60" />
+                    <p className="text-sm font-semibold text-zinc-200">No projects match the current filter or search.</p>
+                    <div className="flex justify-center gap-2 mt-4">
+                      {adminProjectSearch && (
+                        <button
+                          onClick={() => setAdminProjectSearch('')}
+                          className="px-3 py-1.5 text-xs rounded-xl bg-zinc-800 text-zinc-300 hover:bg-zinc-700"
+                        >
+                          Clear Search
+                        </button>
+                      )}
+                      {adminProjectCategoryFilter !== 'all' && (
+                        <button
+                          onClick={() => setAdminProjectCategoryFilter('all')}
+                          className="px-3 py-1.5 text-xs rounded-xl bg-yellow-500 text-black font-semibold hover:bg-yellow-400"
+                        >
+                          Show All Categories
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                )}
+
+                {/* Projects Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {adminFilteredProjects.map((project) => {
+                    const projectCats = project.categories && project.categories.length > 0
+                      ? project.categories
+                      : [project.category || 'web'];
+
+                    return (
+                      <div
+                        key={project.id}
+                        className="p-4 rounded-2xl bg-[#090d14] border border-zinc-800/80 flex flex-col justify-between space-y-4 hover:border-yellow-500/30 transition-all"
+                      >
+                        <div>
+                          {project.imageUrl ? (
+                            <div className="w-full h-36 rounded-xl overflow-hidden bg-zinc-950 mb-3 border border-zinc-800 relative">
+                              <img
+                                src={project.imageUrl}
+                                alt={project.title}
+                                className="w-full h-full object-cover object-top"
+                              />
+                              <div className="absolute top-2 left-2 flex flex-wrap gap-1 max-w-[85%] z-10">
+                                {projectCats.map((catId) => {
+                                  const catObj = projectCategories.find((c) => c.id === catId);
+                                  return (
+                                    <span
+                                      key={catId}
+                                      className="text-[10px] font-mono font-bold uppercase bg-black/85 text-yellow-400 px-2 py-0.5 rounded border border-yellow-500/30 shadow backdrop-blur-sm"
+                                    >
+                                      {catObj ? catObj.name : catId}
+                                    </span>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex flex-wrap gap-1 mb-2">
+                              {projectCats.map((catId) => {
+                                const catObj = projectCategories.find((c) => c.id === catId);
+                                return (
+                                  <span
+                                    key={catId}
+                                    className="text-[10px] font-mono font-bold uppercase bg-yellow-950/40 text-yellow-400 px-2 py-0.5 rounded border border-yellow-500/30"
+                                  >
+                                    {catObj ? catObj.name : catId}
+                                  </span>
+                                );
+                              })}
+                            </div>
+                          )}
+
+                          <h3 className="font-bold text-base text-zinc-100">{project.title}</h3>
+                          <p className="text-xs text-yellow-500/90 font-mono mt-0.5">{project.subtitle}</p>
+                          <p className="text-xs text-zinc-400 mt-2 line-clamp-2 leading-relaxed">
+                            {project.description}
+                          </p>
+
+                          <div className="flex flex-wrap gap-1 mt-3">
+                            {project.tech.map((t) => (
+                              <span
+                                key={t}
+                                className="text-[10px] font-medium bg-zinc-800/80 text-zinc-300 px-2 py-0.5 rounded border border-zinc-700/40"
+                              >
+                                {t}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
+
+                        <div className="pt-3 border-t border-zinc-800 flex items-center justify-between">
+                          <div className="flex items-center space-x-2 text-xs">
+                            {project.liveUrl && (
+                              <a
+                                href={project.liveUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-zinc-400 hover:text-white flex items-center space-x-1"
+                              >
+                                <span>Live</span>
+                                <ExternalLink size={12} />
+                              </a>
+                            )}
+                            {project.githubUrl && (
+                              <a
+                                href={project.githubUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-zinc-400 hover:text-white flex items-center space-x-1"
+                              >
+                                <span>GitHub</span>
+                                <ExternalLink size={12} />
+                              </a>
+                            )}
+                          </div>
+
+                          <div className="flex items-center space-x-1.5">
+                            <button
+                              onClick={() => openEditProjectModal(project)}
+                              className="p-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 rounded-lg text-xs cursor-pointer"
+                              title="Edit Project"
+                            >
+                              <Edit size={14} />
+                            </button>
+                            <button
+                              onClick={() => {
+                                if (confirm(`Delete project "${project.title}"?`)) {
+                                  deleteProject(project.id);
+                                  showToast('Project deleted.');
+                                }
+                              }}
+                              className="p-1.5 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 rounded-lg text-xs cursor-pointer"
+                              title="Delete Project"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* ======================================================== */}
           {/* TAB 5: EXPERIENCE & EDUCATION */}
@@ -1161,14 +1556,24 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                     <Briefcase className="text-yellow-400" size={20} />
                     <span>Professional Work Experience</span>
                   </h2>
-                  <button
-                    type="button"
-                    onClick={openAddExpModal}
-                    className="flex items-center space-x-1.5 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs rounded-xl transition-all cursor-pointer"
-                  >
-                    <Plus size={14} />
-                    <span>Add Experience</span>
-                  </button>
+                  <div className="flex items-center space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => onBackToPortfolio('/#experience')}
+                      className="flex items-center space-x-1.5 px-3 py-1.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-xl transition-colors cursor-pointer"
+                    >
+                      <Eye size={13} />
+                      <span>View on Website</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={openAddExpModal}
+                      className="flex items-center space-x-1.5 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs rounded-xl transition-all cursor-pointer"
+                    >
+                      <Plus size={14} />
+                      <span>Add Experience</span>
+                    </button>
+                  </div>
                 </div>
 
                 <div className="space-y-3">
@@ -1338,14 +1743,24 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                     Manage passion domains, titles, descriptions, and icon representations.
                   </p>
                 </div>
-                <button
-                  type="button"
-                  onClick={openAddInterestModal}
-                  className="flex items-center space-x-1.5 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs rounded-xl transition-all cursor-pointer w-fit"
-                >
-                  <Plus size={16} />
-                  <span>Add Interest</span>
-                </button>
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => onBackToPortfolio('/#interests')}
+                    className="flex items-center space-x-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-xl transition-colors cursor-pointer"
+                  >
+                    <Eye size={14} />
+                    <span>View on Website</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={openAddInterestModal}
+                    className="flex items-center space-x-1.5 px-4 py-2 bg-yellow-500 hover:bg-yellow-400 text-black font-semibold text-xs rounded-xl transition-all cursor-pointer w-fit"
+                  >
+                    <Plus size={16} />
+                    <span>Add Interest</span>
+                  </button>
+                </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -1390,7 +1805,164 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
           )}
 
           {/* ======================================================== */}
-          {/* TAB 7: BACKUP & FACTORY RESET */}
+          {/* TAB 7: CONTACT & SOCIAL INFO */}
+          {/* ======================================================== */}
+          {activeTab === 'contact' && (
+            <div className="space-y-6">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div>
+                  <h2 className="text-xl font-bold text-white flex items-center space-x-2">
+                    <Mail className="text-yellow-400" size={22} />
+                    <span>Contact Details & Social Profiles</span>
+                  </h2>
+                  <p className="text-xs text-zinc-400 mt-1">
+                    Manage the contact information, location, and profiles displayed on the website.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => onBackToPortfolio('/#contact')}
+                  className="flex items-center space-x-1.5 px-3 py-2 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-medium rounded-xl transition-colors cursor-pointer w-fit"
+                >
+                  <Eye size={14} />
+                  <span>View on Website</span>
+                </button>
+              </div>
+
+              {/* FormSubmit Info Notice */}
+              <div className="p-4 rounded-xl bg-blue-950/20 border border-blue-800/40 text-xs text-blue-300 leading-relaxed flex items-start space-x-3">
+                <Mail className="shrink-0 mt-0.5 text-blue-400" size={16} />
+                <div>
+                  <span className="font-semibold text-blue-200">Integrated Form Inquiries: </span>
+                  When visitors send a message via the public contact form, it is automatically routed directly to your active email: <span className="font-mono text-yellow-300 font-bold">{personalInfo.email}</span>.
+                </div>
+              </div>
+
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  updatePersonalInfo(personalInfo);
+                  showToast('Contact information saved successfully!');
+                }}
+                className="space-y-5"
+              >
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                      Primary Contact Email
+                    </label>
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-l-xl bg-zinc-900 border border-r-0 border-zinc-800 flex items-center justify-center text-zinc-400">
+                        <Mail size={16} />
+                      </div>
+                      <input
+                        type="email"
+                        required
+                        value={personalInfo.email}
+                        onChange={(e) => updatePersonalInfo({ email: e.target.value })}
+                        className="flex-1 px-4 py-2.5 rounded-r-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                      Phone Number
+                    </label>
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-l-xl bg-zinc-900 border border-r-0 border-zinc-800 flex items-center justify-center text-zinc-400">
+                        <Phone size={16} />
+                      </div>
+                      <input
+                        type="text"
+                        value={personalInfo.phone}
+                        onChange={(e) => updatePersonalInfo({ phone: e.target.value })}
+                        className="flex-1 px-4 py-2.5 rounded-r-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                      Campus / Location
+                    </label>
+                    <div className="flex items-center">
+                      <div className="w-10 h-10 rounded-l-xl bg-zinc-900 border border-r-0 border-zinc-800 flex items-center justify-center text-zinc-400">
+                        <MapPin size={16} />
+                      </div>
+                      <input
+                        type="text"
+                        value={personalInfo.location}
+                        onChange={(e) => updatePersonalInfo({ location: e.target.value })}
+                        placeholder="e.g. Faisalabad, Pakistan (FAST-NUCES)"
+                        className="flex-1 px-4 py-2.5 rounded-r-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                      Origin / Home City
+                    </label>
+                    <input
+                      type="text"
+                      value={personalInfo.origin || 'Faisalabad, PK'}
+                      onChange={(e) => updatePersonalInfo({ origin: e.target.value })}
+                      placeholder="e.g. Faisalabad, PK"
+                      className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                      GitHub Profile URL
+                    </label>
+                    <input
+                      type="url"
+                      value={personalInfo.github}
+                      onChange={(e) => updatePersonalInfo({ github: e.target.value })}
+                      placeholder="https://github.com/your-username"
+                      className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                      LinkedIn Profile URL
+                    </label>
+                    <input
+                      type="url"
+                      value={personalInfo.linkedin}
+                      onChange={(e) => updatePersonalInfo({ linkedin: e.target.value })}
+                      placeholder="https://linkedin.com/in/your-profile"
+                      className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex items-center justify-end space-x-3 pt-4 border-t border-zinc-800">
+                  <button
+                    type="button"
+                    onClick={() => onBackToPortfolio('/#contact')}
+                    className="flex items-center space-x-1.5 px-4 py-2.5 bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold rounded-xl transition-colors cursor-pointer"
+                  >
+                    <Eye size={15} />
+                    <span>View Live Website</span>
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex items-center space-x-2 px-6 py-2.5 bg-yellow-500 hover:bg-yellow-400 text-black font-bold text-xs uppercase tracking-wider rounded-xl transition-all cursor-pointer shadow-lg shadow-yellow-500/20"
+                  >
+                    <Save size={16} />
+                    <span>Save Contact Details</span>
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {/* ======================================================== */}
+          {/* TAB 8: BACKUP & FACTORY RESET */}
           {/* ======================================================== */}
           {activeTab === 'settings' && (
             <div className="space-y-6">
@@ -1522,40 +2094,116 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
-                    Subtitle / Tech Category
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={projectForm.subtitle}
-                    onChange={(e) => setProjectForm({ ...projectForm, subtitle: e.target.value })}
-                    placeholder="e.g. TA & Student Marking Portal (MERN Stack)"
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
-                  />
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+                  Subtitle / Role Summary
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={projectForm.subtitle}
+                  onChange={(e) => setProjectForm({ ...projectForm, subtitle: e.target.value })}
+                  placeholder="e.g. TA & Student Marking Portal (MERN Stack)"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                />
+              </div>
+
+              {/* Multi-Category Selector */}
+              <div className="p-3.5 rounded-xl bg-zinc-950/70 border border-zinc-800/80 space-y-2.5">
+                <div className="flex items-center justify-between flex-wrap gap-2">
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-300 uppercase tracking-wider">
+                      Assigned Categories <span className="text-yellow-400 font-normal lowercase">(multiple allowed)</span>
+                    </label>
+                    <p className="text-[11px] text-zinc-500">Click categories to assign or remove</p>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[11px] font-mono px-2 py-0.5 rounded-md bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                      {(projectForm.categories || []).length} selected
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setShowQuickAddCat(!showQuickAddCat)}
+                      className="text-[11px] font-semibold text-yellow-400 hover:text-yellow-300 flex items-center space-x-1 cursor-pointer transition-colors"
+                    >
+                      <Plus size={12} />
+                      <span>New Category</span>
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setManageCategoriesModalOpen(true)}
+                      className="text-[11px] text-zinc-400 hover:text-zinc-200 underline cursor-pointer"
+                    >
+                      Manage All
+                    </button>
+                  </div>
                 </div>
 
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
-                    Filter Category
-                  </label>
-                  <select
-                    value={projectForm.category}
-                    onChange={(e) =>
-                      setProjectForm({
-                        ...projectForm,
-                        category: e.target.value as 'web' | 'ml' | 'ai' | 'all',
-                      })
-                    }
-                    className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
-                  >
-                    <option value="web">MERN & Web Dev (web)</option>
-                    <option value="ml">Machine Learning (ml)</option>
-                    <option value="ai">AI & Automation (ai)</option>
-                  </select>
+                {/* Inline Quick Add Category */}
+                {showQuickAddCat && (
+                  <div className="p-2.5 rounded-lg bg-zinc-900 border border-yellow-500/40 flex items-center gap-2">
+                    <input
+                      type="text"
+                      value={quickCatName}
+                      onChange={(e) => setQuickCatName(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                          e.preventDefault();
+                          handleQuickAddCategory();
+                        }
+                      }}
+                      placeholder="Category name (e.g. Mobile Apps, DevOps)..."
+                      className="flex-1 px-2.5 py-1.5 rounded-md bg-zinc-950 border border-zinc-700 text-xs text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                      autoFocus
+                    />
+                    <button
+                      type="button"
+                      onClick={handleQuickAddCategory}
+                      className="px-3 py-1.5 rounded-md bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-bold cursor-pointer"
+                    >
+                      Add
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowQuickAddCat(false);
+                        setQuickCatName('');
+                      }}
+                      className="px-2 py-1.5 rounded-md text-zinc-400 hover:text-zinc-200 text-xs cursor-pointer"
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                )}
+
+                {/* Category Selection Chips */}
+                <div className="flex flex-wrap gap-2 pt-1">
+                  {projectCategories.map((cat) => {
+                    const isSelected = (projectForm.categories || []).includes(cat.id);
+                    return (
+                      <button
+                        key={cat.id}
+                        type="button"
+                        onClick={() => toggleCategoryInForm(cat.id)}
+                        className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer border ${
+                          isSelected
+                            ? 'bg-yellow-500 text-black border-yellow-500 shadow-md shadow-yellow-500/20 font-bold'
+                            : 'bg-zinc-900 text-zinc-300 border-zinc-700/60 hover:border-zinc-500 hover:bg-zinc-800'
+                        }`}
+                      >
+                        {getCategoryIconComponent(cat.iconName, 'w-3.5 h-3.5')}
+                        <span>{cat.name}</span>
+                        {isSelected && <Check size={13} className="stroke-[3]" />}
+                      </button>
+                    );
+                  })}
                 </div>
+
+                {(!projectForm.categories || projectForm.categories.length === 0) && (
+                  <p className="text-[11px] text-rose-400 flex items-center space-x-1 pt-1">
+                    <span>⚠️ Please select at least one category for this project.</span>
+                  </p>
+                )}
               </div>
 
               <div>
@@ -1658,6 +2306,239 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                   className="px-6 py-2.5 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-bold"
                 >
                   Save Project
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL: MANAGE PROJECT CATEGORIES */}
+      {/* ======================================================== */}
+      {manageCategoriesModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111722] border border-zinc-800 rounded-2xl max-w-xl w-full p-6 sm:p-7 shadow-2xl relative my-8">
+            <div className="flex items-center justify-between pb-4 border-b border-zinc-800 mb-5">
+              <div>
+                <h3 className="font-bold text-lg text-white flex items-center space-x-2">
+                  <Tags className="text-yellow-400" size={20} />
+                  <span>Manage Project Categories</span>
+                </h3>
+                <p className="text-xs text-zinc-400 mt-1">
+                  Create, customize, or delete categories for your engineering projects showcase.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => setManageCategoriesModalOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer"
+              >
+                <X size={18} />
+              </button>
+            </div>
+
+            <div className="flex justify-between items-center mb-4">
+              <span className="text-xs text-zinc-400 font-mono">
+                {projectCategories.length} {projectCategories.length === 1 ? 'category' : 'categories'} configured
+              </span>
+              <button
+                type="button"
+                onClick={openAddProjCategoryModal}
+                className="flex items-center space-x-1.5 px-3 py-1.5 bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-bold rounded-xl transition-all cursor-pointer"
+              >
+                <Plus size={14} />
+                <span>Add Category</span>
+              </button>
+            </div>
+
+            {/* Categories List */}
+            <div className="space-y-2.5 max-h-[55vh] overflow-y-auto pr-1">
+              {projectCategories.map((cat) => {
+                const assignedProjects = projectsData.filter((p) => {
+                  const cats = p.categories && p.categories.length > 0 ? p.categories : [p.category || 'web'];
+                  return cats.includes(cat.id);
+                });
+
+                return (
+                  <div
+                    key={cat.id}
+                    className="p-3.5 rounded-xl bg-zinc-900/80 border border-zinc-800 flex items-center justify-between gap-3 hover:border-zinc-700 transition-colors"
+                  >
+                    <div className="flex items-center space-x-3 min-w-0">
+                      <div className="p-2 rounded-lg bg-yellow-500/10 border border-yellow-500/20 text-yellow-400 shrink-0">
+                        {getCategoryIconComponent(cat.iconName, 'w-4 h-4')}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center space-x-2">
+                          <h4 className="font-semibold text-sm text-zinc-100 truncate">{cat.name}</h4>
+                          <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-zinc-800 text-zinc-400 border border-zinc-700/60">
+                            {cat.id}
+                          </span>
+                        </div>
+                        {cat.description && (
+                          <p className="text-xs text-zinc-400 mt-0.5 truncate">{cat.description}</p>
+                        )}
+                        <p className="text-[11px] text-zinc-500 font-mono mt-0.5">
+                          {assignedProjects.length} {assignedProjects.length === 1 ? 'project' : 'projects'} assigned
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-1.5 shrink-0">
+                      <button
+                        type="button"
+                        onClick={() => openEditProjCategoryModal(cat)}
+                        className="p-1.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors cursor-pointer"
+                        title="Edit Category"
+                      >
+                        <Edit size={14} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteProjCategory(cat.id, cat.name)}
+                        className="p-1.5 rounded-lg bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 transition-colors cursor-pointer"
+                        title="Delete Category"
+                      >
+                        <Trash2 size={14} />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            <div className="flex justify-end pt-5 border-t border-zinc-800 mt-5">
+              <button
+                type="button"
+                onClick={() => setManageCategoriesModalOpen(false)}
+                className="px-5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold cursor-pointer"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ======================================================== */}
+      {/* MODAL: ADD / EDIT PROJECT CATEGORY */}
+      {/* ======================================================== */}
+      {projCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto">
+          <div className="bg-[#111722] border border-zinc-800 rounded-2xl max-w-md w-full p-6 shadow-2xl relative my-8">
+            <div className="flex items-center justify-between pb-3 border-b border-zinc-800 mb-4">
+              <h3 className="font-bold text-base text-white flex items-center space-x-2">
+                <Tag className="text-yellow-400" size={18} />
+                <span>{editingProjCategory ? 'Edit Project Category' : 'Add New Category'}</span>
+              </h3>
+              <button
+                type="button"
+                onClick={() => setProjCategoryModalOpen(false)}
+                className="p-1 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 cursor-pointer"
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <form onSubmit={handleSaveProjCategory} className="space-y-4">
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+                  Category Name
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={projCategoryForm.name}
+                  onChange={(e) => {
+                    const name = e.target.value;
+                    if (!editingProjCategory && (!projCategoryForm.id || projCategoryForm.id === projCategoryForm.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, ''))) {
+                      const autoSlug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+                      setProjCategoryForm({ ...projCategoryForm, name, id: autoSlug });
+                    } else {
+                      setProjCategoryForm({ ...projCategoryForm, name });
+                    }
+                  }}
+                  placeholder="e.g. Mobile Apps, Cloud & DevOps"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+                  Category ID / Slug
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={projCategoryForm.id}
+                  onChange={(e) =>
+                    setProjCategoryForm({
+                      ...projCategoryForm,
+                      id: e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ''),
+                    })
+                  }
+                  placeholder="e.g. mobile, cloud-devops"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm font-mono text-yellow-400 focus:border-yellow-500 focus:outline-none"
+                />
+                <p className="text-[11px] text-zinc-500 mt-1">Unique slug used for URL filters & project grouping</p>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+                  Icon Identifier
+                </label>
+                <div className="flex items-center space-x-2 mb-2">
+                  <div className="p-2 rounded-lg bg-zinc-800 border border-zinc-700 text-yellow-400">
+                    {getCategoryIconComponent(projCategoryForm.iconName, 'w-5 h-5')}
+                  </div>
+                  <select
+                    value={projCategoryForm.iconName || 'Code'}
+                    onChange={(e) => setProjCategoryForm({ ...projCategoryForm, iconName: e.target.value })}
+                    className="flex-1 px-3 py-2 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                  >
+                    <option value="Code">Code (MERN / Web)</option>
+                    <option value="BrainCircuit">BrainCircuit (Data Science & ML)</option>
+                    <option value="Cpu">Cpu (AI & Automation)</option>
+                    <option value="Layers">Layers (Full Stack)</option>
+                    <option value="Smartphone">Smartphone (Mobile Apps)</option>
+                    <option value="Globe">Globe (Web & Cloud)</option>
+                    <option value="Database">Database (Data & Backend)</option>
+                    <option value="Cloud">Cloud (Cloud Computing)</option>
+                    <option value="Terminal">Terminal (CLI & Systems)</option>
+                    <option value="Sparkles">Sparkles (Creative / AI)</option>
+                    <option value="ShieldCheck">ShieldCheck (Security / QA)</option>
+                    <option value="Box">Box (Tools / Libraries)</option>
+                  </select>
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-1.5">
+                  Description (optional)
+                </label>
+                <input
+                  type="text"
+                  value={projCategoryForm.description || ''}
+                  onChange={(e) => setProjCategoryForm({ ...projCategoryForm, description: e.target.value })}
+                  placeholder="Short summary for this category..."
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-zinc-900 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                />
+              </div>
+
+              <div className="flex justify-end space-x-2.5 pt-4 border-t border-zinc-800">
+                <button
+                  type="button"
+                  onClick={() => setProjCategoryModalOpen(false)}
+                  className="px-4 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className="px-5 py-2 rounded-xl bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-bold cursor-pointer"
+                >
+                  Save Category
                 </button>
               </div>
             </form>

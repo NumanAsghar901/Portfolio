@@ -25,7 +25,7 @@ export default function Footer() {
         <div className="flex flex-col items-center md:items-start space-y-1.5 text-center md:text-left" id="footer-brand">
           <div className="flex items-center space-x-2">
             <span className="font-script text-3xl text-yellow-500 hover:text-yellow-400 transition-colors">
-              Numan
+              {personalInfo.brandName || personalInfo.name.split(' ')[0] || 'Numan'}
             </span>
           </div>
           <div className="flex items-center space-x-2">

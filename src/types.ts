@@ -1,15 +1,24 @@
+export interface ProjectCategory {
+  id: string; // e.g. 'web', 'ml', 'ai', 'mobile'
+  name: string; // e.g. 'MERN & Web Dev'
+  iconName?: string; // lucide icon name
+  description?: string;
+}
+
 export interface Project {
   id: string;
   title: string;
   subtitle: string;
   description: string;
   bullets?: string[];
-  category: 'web' | 'ml' | 'ai' | 'all';
+  category?: 'web' | 'ml' | 'ai' | 'all' | string;
+  categories: string[];
   tech: string[];
   imageUrl?: string;
   liveUrl?: string;
   githubUrl?: string;
 }
+
 
 export interface Skill {
   name: string;
@@ -50,6 +59,7 @@ export interface Interest {
 
 export interface PersonalInfo {
   name: string;
+  brandName?: string;
   title: string;
   location: string;
   phone: string;

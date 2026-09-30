@@ -1,4 +1,4 @@
-import { Project, SkillCategory, Experience, Education, Achievement } from './types';
+import { Project, ProjectCategory, SkillCategory, Experience, Education, Achievement } from './types';
 import portraitImg from './assets/images/im.png';
 import fastHubImg from './assets/images/fast-academic-hub.png';
 import studentMarksImg from './assets/images/student-marks-prediction.png';
@@ -79,6 +79,27 @@ export const skillsData: SkillCategory[] = [
   },
 ];
 
+export const defaultProjectCategories: ProjectCategory[] = [
+  {
+    id: "web",
+    name: "MERN & Web",
+    iconName: "Code",
+    description: "Full-stack web applications & MERN development",
+  },
+  {
+    id: "ml",
+    name: "ML & Data Science",
+    iconName: "BrainCircuit",
+    description: "Machine learning models, analytics & data science",
+  },
+  {
+    id: "ai",
+    name: "AI & Automation",
+    iconName: "Cpu",
+    description: "AI agents, LLM integrations & workflow automation",
+  },
+];
+
 export const projectsData: Project[] = [
   {
     id: "fast-academic-hub",
@@ -87,6 +108,7 @@ export const projectsData: Project[] = [
     description:
       "A full-featured academic web portal for streamlining marking, grading, and feedback workflows at FAST-NUCES.",
     category: "web",
+    categories: ["web"],
     tech: ["React", "Node.js", "Express", "MongoDB", "Tailwind CSS"],
     imageUrl: fastHubImg,
     liveUrl: "https://fast-academic-hub-nu.vercel.app/",
@@ -98,6 +120,7 @@ export const projectsData: Project[] = [
     description:
       "Regression pipeline predicting student exam marks across three question types with an interactive Streamlit app.",
     category: "ml",
+    categories: ["ml"],
     tech: ["Python", "Scikit-learn", "Streamlit", "Pandas", "NumPy"],
     imageUrl: studentMarksImg,
     liveUrl: "https://ds-marks-prediction.streamlit.app/",
@@ -110,6 +133,7 @@ export const projectsData: Project[] = [
     description:
       "Multi-model classification pipeline to predict customer churn in enterprise systems with comprehensive evaluation.",
     category: "ml",
+    categories: ["ml", "ai"],
     tech: ["Python", "Scikit-learn", "XGBoost", "Pandas", "Seaborn"],
     imageUrl: churnPredImg,
     githubUrl: "https://github.com/NumanAsghar901",
@@ -121,6 +145,7 @@ export const projectsData: Project[] = [
     description:
       "AI-powered automation workflow using n8n to collect, filter, and match relevant internship opportunities.",
     category: "ai",
+    categories: ["ai", "web"],
     tech: ["n8n", "LLM Integration", "Webhooks", "APIs", "Automation"],
     imageUrl: aiHunterImg,
     githubUrl: "https://github.com/NumanAsghar901",
@@ -132,6 +157,7 @@ export const projectsData: Project[] = [
     description:
       "Web-based tool for creating and downloading professional invoices with dynamic calculations and PDF export.",
     category: "web",
+    categories: ["web"],
     tech: ["HTML5", "CSS3", "JavaScript", "jspdf", "Tailwind CSS"],
     imageUrl: invoiceGenImg,
     liveUrl: "https://na-invoice-generator.vercel.app",
@@ -144,6 +170,7 @@ export const projectsData: Project[] = [
     description:
       "Browser-based matching card game with dynamic DOM updates, state handling, move counter, and timer.",
     category: "web",
+    categories: ["web"],
     tech: ["HTML5", "CSS3", "JavaScript"],
     imageUrl: memoryGameImg,
     liveUrl: "https://memory-matching-game-beta.vercel.app/",
@@ -156,6 +183,7 @@ export const projectsData: Project[] = [
     description:
       "Responsive multi-page corporate portal highlighting company services, capabilities, and multimedia assets.",
     category: "web",
+    categories: ["web"],
     tech: ["HTML5", "CSS3", "JavaScript", "Tailwind CSS"],
     imageUrl: industrialWebImg,
     liveUrl: "https://industral-website.vercel.app/",

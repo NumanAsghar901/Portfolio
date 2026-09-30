@@ -34,10 +34,28 @@ export default function App() {
   }, []);
 
   const navigateTo = (path: string) => {
+    const [pathPart, hashPart] = path.split('#');
+    const cleanPath = pathPart || '/';
+    const cleanHash = hashPart ? `#${hashPart}` : '';
     window.history.pushState({}, '', path);
-    setCurrentPath(path);
-    setCurrentHash('');
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setCurrentPath(cleanPath);
+    setCurrentHash(cleanHash);
+    if (cleanHash) {
+      setTimeout(() => {
+        const id = cleanHash.replace('#', '');
+        const el = document.getElementById(id);
+        if (el) {
+          const headerHeight = 75;
+          const elementPosition = el.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - headerHeight;
+          window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        } else {
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+      }, 100);
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   const handleLogout = () => {
@@ -57,7 +75,7 @@ export default function App() {
       {isAdminRoute ? (
         isAdminAuthenticated ? (
           <AdminPanel
-            onBackToPortfolio={() => navigateTo('/')}
+            onBackToPortfolio={(section = '/') => navigateTo(section)}
             onLogout={handleLogout}
           />
         ) : (
