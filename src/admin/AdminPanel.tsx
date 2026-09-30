@@ -23,6 +23,7 @@ import {
   Eye,
   LogOut,
   Save,
+  Github,
   CheckCircle2,
   FolderOpen,
   Mail,
@@ -104,6 +105,8 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
   const [isSavingCodebase, setIsSavingCodebase] = useState(false);
   const [codebaseSavedSuccess, setCodebaseSavedSuccess] = useState(false);
   const [copiedGitCmd, setCopiedGitCmd] = useState(false);
+  const [githubToken, setGithubToken] = useState(() => localStorage.getItem('portfolio_github_token') || '');
+  const [tokenSaved, setTokenSaved] = useState(false);
 
   const handleSaveToCodebase = async () => {
     setIsSavingCodebase(true);
@@ -122,11 +125,14 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
         cvFileName: cvMetadata?.fileName,
       };
 
-      const result = await saveToCodebaseApi(payload);
+      const result = await saveToCodebaseApi(payload, githubToken);
       if (result.success) {
         setCodebaseSavedSuccess(true);
         setTimeout(() => setCodebaseSavedSuccess(false), 5000);
-        showToast('✓ Saved directly to src/data.ts! Changes are now permanent codebase defaults.');
+        showToast(result.message || '✓ Saved directly to codebase!');
+      } else if (result.needsToken) {
+        setActiveTab('settings');
+        showToast('Please enter your GitHub Token below to enable automatic 1-click cloud sync on Vercel.');
       } else {
         downloadDataTsFile(payload);
         showToast('Downloaded data.ts file! Replace src/data.ts to commit changes.');
@@ -2031,6 +2037,19 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                       className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-zinc-400 uppercase tracking-wider mb-2">
+                      Medium Profile URL
+                    </label>
+                    <input
+                      type="url"
+                      value={personalInfo.medium || ''}
+                      onChange={(e) => updatePersonalInfo({ medium: e.target.value })}
+                      placeholder="https://medium.com/@your-username"
+                      className="w-full px-4 py-2.5 rounded-xl bg-zinc-900/80 border border-zinc-800 text-sm text-zinc-100 focus:border-yellow-500 focus:outline-none"
+                    />
+                  </div>
                 </div>
 
                 <div className="flex items-center justify-end space-x-3 pt-4 border-t border-zinc-800">
@@ -2121,6 +2140,56 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                     <Download size={16} />
                     <span>Download updated data.ts</span>
                   </button>
+                </div>
+
+                {/* GitHub Cloud Direct Sync (For Vercel / Phone Editing) */}
+                <div className="bg-[#050810] border border-yellow-500/20 rounded-xl p-4 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2">
+                      <Github size={16} className="text-yellow-400" />
+                      <span className="text-xs font-bold text-white">GitHub 1-Click Cloud Sync (For Mobile & Vercel)</span>
+                    </div>
+                    <a
+                      href="https://github.com/settings/tokens/new?scopes=repo&description=Portfolio+Admin+Sync"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-[11px] text-yellow-400 hover:text-yellow-300 underline flex items-center space-x-1"
+                    >
+                      <span>Generate Token</span>
+                      <ExternalLink size={10} />
+                    </a>
+                  </div>
+
+                  <p className="text-[11px] text-zinc-400 leading-relaxed">
+                    Paste your GitHub Personal Access Token (classic with <code className="text-yellow-400">repo</code> scope) below.
+                    Once saved, clicking <strong>"Save to Codebase"</strong> from any device (phone, laptop, Vercel) commits directly to your GitHub repository and automatically deploys your updates live without downloading files!
+                  </p>
+
+                  <div className="flex items-center space-x-2">
+                    <input
+                      type="password"
+                      value={githubToken}
+                      onChange={(e) => {
+                        const val = e.target.value.trim();
+                        setGithubToken(val);
+                        localStorage.setItem('portfolio_github_token', val);
+                      }}
+                      placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (GitHub PAT)"
+                      className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-zinc-100 font-mono focus:border-yellow-500 focus:outline-none"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => {
+                        localStorage.setItem('portfolio_github_token', githubToken);
+                        setTokenSaved(true);
+                        setTimeout(() => setTokenSaved(false), 2500);
+                        showToast(githubToken ? 'GitHub Token saved!' : 'GitHub Token cleared.');
+                      }}
+                      className="px-3.5 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-semibold transition-colors cursor-pointer"
+                    >
+                      {tokenSaved ? 'Saved!' : 'Save Token'}
+                    </button>
+                  </div>
                 </div>
 
                 {/* Git Push Instructions */}

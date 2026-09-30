@@ -67,6 +67,7 @@ export interface PersonalInfo {
   portraitUrl: string;
   linkedin: string;
   github: string;
+  medium?: string;
   summary: string;
   // About section fields
   aboutTitle?: string;

@@ -1,6 +1,7 @@
 import React from 'react';
 import { ArrowUp, Github, Linkedin, Mail, ShieldCheck } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
+import MediumIcon from './icons/MediumIcon';
 
 export default function Footer() {
   const { personalInfo } = usePortfolio();
@@ -65,6 +66,17 @@ export default function Footer() {
           >
             <Linkedin className="w-4.5 h-4.5" />
           </a>
+          {(personalInfo.medium || 'https://medium.com/@numanasghar901') && (
+            <a
+              href={personalInfo.medium || 'https://medium.com/@numanasghar901'}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-yellow-400 transition-all duration-200 border border-zinc-800 hover:border-yellow-500/30 shadow-sm"
+              title="Medium Articles"
+            >
+              <MediumIcon size={18} />
+            </a>
+          )}
           <a
             href={`mailto:${personalInfo.email}`}
             className="p-2.5 rounded-xl bg-zinc-900 hover:bg-zinc-800 text-zinc-400 hover:text-yellow-400 transition-all duration-200 border border-zinc-800 hover:border-yellow-500/30 shadow-sm"

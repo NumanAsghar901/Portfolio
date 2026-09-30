@@ -119,16 +119,138 @@ export function downloadDataTsFile(payload: CodebasePayload) {
   setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
 
-export async function saveToCodebaseApi(payload: CodebasePayload): Promise<{
+function utf8ToBase64(str: string): string {
+  const bytes = new TextEncoder().encode(str);
+  let binary = '';
+  for (let i = 0; i < bytes.byteLength; i++) {
+    binary += String.fromCharCode(bytes[i]);
+  }
+  return window.btoa(binary);
+}
+
+export async function saveDirectlyToGitHub(
+  payload: CodebasePayload,
+  token: string,
+  repo: string = 'NumanAsghar901/Portfolio',
+  branch: string = 'main'
+): Promise<{ success: boolean; message: string }> {
+  try {
+    const dataTsContent = generateDataTsContent(payload);
+    const base64Data = utf8ToBase64(dataTsContent);
+
+    // 1. Get SHA of src/data.ts
+    const getRes = await fetch(`https://api.github.com/repos/${repo}/contents/src/data.ts?ref=${branch}`, {
+      headers: {
+        Authorization: `Bearer ${token.trim()}`,
+        Accept: 'application/vnd.github.v3+json',
+      },
+    });
+
+    let currentSha: string | undefined;
+    if (getRes.ok) {
+      const getJson: any = await getRes.json();
+      currentSha = getJson.sha;
+    } else if (getRes.status === 401 || getRes.status === 403) {
+      return {
+        success: false,
+        message: 'Invalid GitHub Token. Please check that your token has repo access permissions.',
+      };
+    }
+
+    // 2. Commit updated src/data.ts
+    const putRes = await fetch(`https://api.github.com/repos/${repo}/contents/src/data.ts`, {
+      method: 'PUT',
+      headers: {
+        Authorization: `Bearer ${token.trim()}`,
+        Accept: 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        message: 'Update portfolio content via Admin Panel [auto-deploy]',
+        content: base64Data,
+        sha: currentSha,
+        branch,
+      }),
+    });
+
+    if (!putRes.ok) {
+      const errJson: any = await putRes.json().catch(() => ({}));
+      return {
+        success: false,
+        message: errJson.message || `Failed to commit to GitHub (${putRes.status})`,
+      };
+    }
+
+    // 3. Commit CV if present
+    if (payload.cvBase64) {
+      try {
+        const rawBase64 = payload.cvBase64.includes('base64,')
+          ? payload.cvBase64.split('base64,')[1]
+          : payload.cvBase64;
+
+        for (const pdfPath of ['public/Numan_Asghar_CV.pdf', 'public/cv.pdf']) {
+          const cvGet = await fetch(`https://api.github.com/repos/${repo}/contents/${pdfPath}?ref=${branch}`, {
+            headers: {
+              Authorization: `Bearer ${token.trim()}`,
+              Accept: 'application/vnd.github.v3+json',
+            },
+          });
+          let cvSha: string | undefined;
+          if (cvGet.ok) {
+            const cvJson: any = await cvGet.json();
+            cvSha = cvJson.sha;
+          }
+
+          await fetch(`https://api.github.com/repos/${repo}/contents/${pdfPath}`, {
+            method: 'PUT',
+            headers: {
+              Authorization: `Bearer ${token.trim()}`,
+              Accept: 'application/vnd.github.v3+json',
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              message: 'Update portfolio CV via Admin Panel',
+              content: rawBase64,
+              sha: cvSha,
+              branch,
+            }),
+          });
+        }
+      } catch (cvErr) {
+        console.warn('Note: CV file commit had a minor issue:', cvErr);
+      }
+    }
+
+    return {
+      success: true,
+      message: '✓ Changes committed directly to GitHub repository! Vercel is now deploying your updates live (~30s).',
+    };
+  } catch (err: any) {
+    return {
+      success: false,
+      message: err?.message || 'Network error while connecting to GitHub API.',
+    };
+  }
+}
+
+export async function saveToCodebaseApi(
+  payload: CodebasePayload,
+  token?: string
+): Promise<{
   success: boolean;
   message: string;
   isApi: boolean;
+  needsToken?: boolean;
 }> {
+  const activeToken = token || localStorage.getItem('portfolio_github_token') || undefined;
+
+  // 1. Try local dev server or Vercel serverless function endpoint
   try {
     const response = await fetch('/api/save-codebase', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        ...(activeToken ? { 'x-github-token': activeToken } : {}),
       },
       body: JSON.stringify(payload),
     });
@@ -137,22 +259,41 @@ export async function saveToCodebaseApi(payload: CodebasePayload): Promise<{
       const data = await response.json();
       return {
         success: true,
-        message: data.message || 'Changes saved directly to src/data.ts!',
-        isApi: true,
-      };
-    } else {
-      const errData = await response.json().catch(() => ({}));
-      return {
-        success: false,
-        message: errData.error || `Server returned error (${response.status})`,
+        message: data.message || 'Changes saved directly to codebase!',
         isApi: true,
       };
     }
-  } catch (err: any) {
+
+    const errData = await response.json().catch(() => ({}));
+    if (errData.needsToken && activeToken) {
+      // Server needs token and we have one -> Fall through to client GitHub API
+    } else if (response.status !== 404 && !errData.needsToken) {
+      return {
+        success: false,
+        message: errData.error || errData.message || `Server returned error (${response.status})`,
+        isApi: true,
+      };
+    }
+  } catch {
+    // Local /api/save-codebase endpoint not reached (or purely static)
+  }
+
+  // 2. If token is present, commit directly via GitHub REST API from client!
+  if (activeToken) {
+    const gitHubResult = await saveDirectlyToGitHub(payload, activeToken);
     return {
-      success: false,
-      message: 'Local save API endpoint is only active when running Vite locally.',
-      isApi: false,
+      success: gitHubResult.success,
+      message: gitHubResult.message,
+      isApi: true,
+      needsToken: !gitHubResult.success,
     };
   }
+
+  // 3. No token and not on local dev server
+  return {
+    success: false,
+    message: 'On Vercel, please enter your GitHub Personal Access Token once in Admin Settings to enable 1-click cloud sync.',
+    isApi: false,
+    needsToken: true,
+  };
 }

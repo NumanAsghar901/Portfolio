@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { Download, ArrowUpRight, Github, Linkedin, Mail } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import defaultPortrait from '../assets/images/im.png';
+import MediumIcon from './icons/MediumIcon';
 
 export default function Hero() {
   const { personalInfo, downloadCv } = usePortfolio();
@@ -100,6 +101,17 @@ export default function Hero() {
               >
                 <Linkedin size={18} strokeWidth={2.5} />
               </a>
+              {(personalInfo.medium || 'https://medium.com/@numanasghar901') && (
+                <a
+                  href={personalInfo.medium || 'https://medium.com/@numanasghar901'}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-10 h-10 rounded-full border-2 border-white flex items-center justify-center text-white hover:bg-white hover:text-black transition-all"
+                  title="Medium Articles"
+                >
+                  <MediumIcon size={18} />
+                </a>
+              )}
               <a
                 href={`mailto:${personalInfo.email}`}
                 title={personalInfo.email}
