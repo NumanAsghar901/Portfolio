@@ -54,7 +54,10 @@ import invoiceGenImg from './assets/images/na-invoice-generator.png';
 import memoryGameImg from './assets/images/memory-matching-game.png';
 import industrialWebImg from './assets/images/industrial-website.png';\n\n`;
 
-  // 2. Personal Info
+  // 2. Codebase Data Version for cache synchronization
+  code += `export const CODEBASE_DATA_VERSION = '${Date.now()}';\n\n`;
+
+  // 3. Personal Info
   let personalInfoStr = JSON.stringify(payload.personalInfo, null, 2);
   // Preserve portraitImg variable if default portrait image is used
   personalInfoStr = personalInfoStr.replace(

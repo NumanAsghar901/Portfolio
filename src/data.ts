@@ -8,6 +8,8 @@ import invoiceGenImg from './assets/images/na-invoice-generator.png';
 import memoryGameImg from './assets/images/memory-matching-game.png';
 import industrialWebImg from './assets/images/industrial-website.png';
 
+export const CODEBASE_DATA_VERSION = '2026-09-30-v5-lvlup';
+
 export const personalInfo = {
   "name": "Muhammad Numan Asghar",
   "title": "Computer Science Student | FAST-NUCES",
@@ -17,6 +19,7 @@ export const personalInfo = {
   "portraitUrl": portraitImg,
   "linkedin": "https://www.linkedin.com/in/numan-a-79587628a",
   "github": "https://github.com/NumanAsghar901",
+  "medium": "https://medium.com/@numanasghar901",
   "summary": "Final-year Computer Science student specializing in the MERN Stack, Data Science, Machine Learning, and AI Agent Development. Experienced in building ML pipelines and AI-driven automation workflows using Python, n8n, and APIs. Proficient in full-stack web development with a focus on responsive and scalable applications. Passionate about combining intelligent systems with modern web technologies to solve real-world problems.",
   "brandName": "Numan",
   "aboutTitle": "Engineering With Passion While Exploring AI & Web.",

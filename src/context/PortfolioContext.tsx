@@ -20,6 +20,7 @@ import {
   educationData as defaultEducationData,
   achievementsData as defaultAchievementsData,
   interestsData as defaultInterestsData,
+  CODEBASE_DATA_VERSION,
 } from '../data';
 import { saveCvFile, getCvFile, deleteCvFile } from '../utils/cvStorage';
 
@@ -92,6 +93,7 @@ interface PortfolioContextType {
   deleteCv: () => Promise<void>;
   downloadCv: () => Promise<void>;
   resetToDefaults: () => Promise<void>;
+  reloadFromCodebase: () => Promise<void>;
   exportDataJson: () => string;
   importDataJson: (json: string) => boolean;
 }
@@ -150,6 +152,46 @@ function normalizeProjects(projects: any[]): Project[] {
   });
 }
 
+function loadProjects(): Project[] {
+  const saved = localStorage.getItem(STORAGE_KEYS.PROJECTS);
+  if (!saved) return defaultProjectsData;
+  try {
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed) || parsed.length === 0) return defaultProjectsData;
+    const normalized = normalizeProjects(parsed);
+    // Check for any new default projects from codebase that aren't in localStorage
+    const existingIds = new Set(normalized.map((p) => p.id));
+    const newFromCodebase = defaultProjectsData.filter((p) => !existingIds.has(p.id));
+    if (newFromCodebase.length > 0) {
+      const merged = [...newFromCodebase, ...normalized];
+      safeSaveStorage(STORAGE_KEYS.PROJECTS, merged);
+      return merged;
+    }
+    return normalized;
+  } catch {
+    return defaultProjectsData;
+  }
+}
+
+function loadProjectCategories(): ProjectCategory[] {
+  const saved = localStorage.getItem(STORAGE_KEYS.PROJECT_CATEGORIES);
+  if (!saved) return defaultProjectCategories;
+  try {
+    const parsed = JSON.parse(saved);
+    if (!Array.isArray(parsed) || parsed.length === 0) return defaultProjectCategories;
+    const existingCatIds = new Set(parsed.map((c: any) => c.id));
+    const newCats = defaultProjectCategories.filter((c) => !existingCatIds.has(c.id));
+    if (newCats.length > 0) {
+      const merged = [...parsed, ...newCats];
+      safeSaveStorage(STORAGE_KEYS.PROJECT_CATEGORIES, merged);
+      return merged;
+    }
+    return parsed;
+  } catch {
+    return defaultProjectCategories;
+  }
+}
+
 export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [personalInfo, setPersonalInfoState] = useState<PersonalInfo>(() =>
     loadFromStorage(STORAGE_KEYS.PERSONAL_INFO, initialPersonalInfo)
@@ -160,11 +202,11 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   );
 
   const [projectCategories, setProjectCategoriesState] = useState<ProjectCategory[]>(() =>
-    loadFromStorage(STORAGE_KEYS.PROJECT_CATEGORIES, defaultProjectCategories)
+    loadProjectCategories()
   );
 
   const [projectsData, setProjectsDataState] = useState<Project[]>(() =>
-    normalizeProjects(loadFromStorage(STORAGE_KEYS.PROJECTS, defaultProjectsData))
+    loadProjects()
   );
 
   const [experienceData, setExperienceDataState] = useState<Experience[]>(() =>
@@ -189,6 +231,14 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
 
   // Synchronize across tabs and storage events
   useEffect(() => {
+    // Synchronize with newly deployed codebase version
+    const storedVersion = localStorage.getItem('portfolio_codebase_version');
+    if (CODEBASE_DATA_VERSION && storedVersion !== CODEBASE_DATA_VERSION) {
+      localStorage.setItem('portfolio_codebase_version', CODEBASE_DATA_VERSION);
+      setProjectsDataState(loadProjects());
+      setProjectCategoriesState(loadProjectCategories());
+    }
+
     const handleStorageChange = (e: StorageEvent) => {
       if (!e.key) return;
       try {
@@ -596,6 +646,34 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     setCvMetadataState(null);
   };
 
+  const reloadFromCodebase = async () => {
+    try {
+      localStorage.removeItem(STORAGE_KEYS.PERSONAL_INFO);
+      localStorage.removeItem(STORAGE_KEYS.SKILLS);
+      localStorage.removeItem(STORAGE_KEYS.PROJECTS);
+      localStorage.removeItem(STORAGE_KEYS.PROJECT_CATEGORIES);
+      localStorage.removeItem(STORAGE_KEYS.EXPERIENCE);
+      localStorage.removeItem(STORAGE_KEYS.EDUCATION);
+      localStorage.removeItem(STORAGE_KEYS.ACHIEVEMENTS);
+      localStorage.removeItem(STORAGE_KEYS.INTERESTS);
+      if (CODEBASE_DATA_VERSION) {
+        localStorage.setItem('portfolio_codebase_version', CODEBASE_DATA_VERSION);
+      }
+      window.dispatchEvent(new CustomEvent('portfolio_data_sync', { detail: { key: 'ALL_RESET' } }));
+    } catch (e) {
+      console.error(e);
+    }
+
+    setPersonalInfoState(initialPersonalInfo);
+    setSkillsDataState(defaultSkillsData);
+    setProjectCategoriesState(defaultProjectCategories);
+    setProjectsDataState(defaultProjectsData);
+    setExperienceDataState(defaultExperienceData);
+    setEducationDataState(defaultEducationData);
+    setAchievementsDataState(defaultAchievementsData);
+    setInterestsDataState(defaultInterestsData as Interest[]);
+  };
+
   const exportDataJson = () => {
     const data = {
       personalInfo,
@@ -696,6 +774,7 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
         deleteCv,
         downloadCv,
         resetToDefaults,
+        reloadFromCodebase,
         exportDataJson,
         importDataJson,
       }}

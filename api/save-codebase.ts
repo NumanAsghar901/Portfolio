@@ -56,6 +56,7 @@ import industrialWebImg from './assets/images/industrial-website.png';\n\n`;
       /"portraitUrl":\s*"[^"]*(?:im\.(?:png|jpg)|portraitImg)[^"]*"/,
       '"portraitUrl": portraitImg'
     );
+    code += `export const CODEBASE_DATA_VERSION = '${Date.now()}';\n\n`;
     code += `export const personalInfo = ${personalInfoStr};\n\n`;
     code += `export const skillsData: SkillCategory[] = ${JSON.stringify(payload.skillsData, null, 2)};\n\n`;
     code += `export const defaultProjectCategories: ProjectCategory[] = ${JSON.stringify(

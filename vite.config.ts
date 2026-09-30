@@ -95,6 +95,8 @@ import invoiceGenImg from './assets/images/na-invoice-generator.png';
 import memoryGameImg from './assets/images/memory-matching-game.png';
 import industrialWebImg from './assets/images/industrial-website.png';
 
+export const CODEBASE_DATA_VERSION = '${Date.now()}';
+
 export const personalInfo = ${personalInfoStr};
 
 export const skillsData: SkillCategory[] = ${JSON.stringify(payload.skillsData, null, 2)};

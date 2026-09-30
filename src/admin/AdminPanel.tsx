@@ -89,6 +89,7 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
     deleteCv,
     downloadCv,
     resetToDefaults,
+    reloadFromCodebase,
     exportDataJson,
     importDataJson,
   } = usePortfolio();
@@ -2105,12 +2106,12 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
                   <button
                     type="button"
                     onClick={handleSaveToCodebase}
                     disabled={isSavingCodebase}
-                    className={`flex items-center justify-center space-x-2 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg ${
+                    className={`flex items-center justify-center space-x-2 px-4 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg ${
                       codebaseSavedSuccess
                         ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
                         : 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/20 active:scale-95'
@@ -2127,18 +2128,31 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                       {isSavingCodebase
                         ? 'Writing files...'
                         : codebaseSavedSuccess
-                        ? 'Successfully Written to src/data.ts!'
-                        : 'Save Directly to src/data.ts'}
+                        ? 'Saved to Codebase!'
+                        : 'Save to Codebase'}
                     </span>
                   </button>
 
                   <button
                     type="button"
+                    onClick={async () => {
+                      await reloadFromCodebase();
+                      showToast('✓ Reloaded from codebase! Latest Git projects and bio loaded.');
+                    }}
+                    className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs transition-colors cursor-pointer border border-zinc-700/60"
+                    title="Reload all projects and data directly from src/data.ts to sync with latest Git commits"
+                  >
+                    <RefreshCw size={16} />
+                    <span>Reload from Codebase</span>
+                  </button>
+
+                  <button
+                    type="button"
                     onClick={handleDownloadDataTs}
-                    className="flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs transition-colors cursor-pointer border border-zinc-700/60"
+                    className="flex items-center justify-center space-x-2 px-4 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs transition-colors cursor-pointer border border-zinc-700/60"
                   >
                     <Download size={16} />
-                    <span>Download updated data.ts</span>
+                    <span>Download data.ts</span>
                   </button>
                 </div>
 
