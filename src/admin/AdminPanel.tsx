@@ -32,10 +32,14 @@ import {
   Tag,
   Search,
   Filter,
+  Copy,
+  Terminal,
+  CheckCheck,
 } from 'lucide-react';
 import { usePortfolio } from '../context/PortfolioContext';
 import { Project, ProjectCategory, SkillCategory, Experience, Education, Achievement, Interest, Skill } from '../types';
 import { compressImage } from '../utils/imageOptimizer';
+import { saveToCodebaseApi, downloadDataTsFile, getCvBase64 } from '../utils/codebaseSync';
 
 interface AdminPanelProps {
   onBackToPortfolio: (section?: string) => void;
@@ -94,6 +98,68 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 3500);
+  };
+
+  // Codebase Synchronization State & Handlers
+  const [isSavingCodebase, setIsSavingCodebase] = useState(false);
+  const [codebaseSavedSuccess, setCodebaseSavedSuccess] = useState(false);
+  const [copiedGitCmd, setCopiedGitCmd] = useState(false);
+
+  const handleSaveToCodebase = async () => {
+    setIsSavingCodebase(true);
+    try {
+      const cvBase64 = await getCvBase64();
+      const payload = {
+        personalInfo,
+        skillsData,
+        projectCategories,
+        projectsData,
+        experienceData,
+        educationData,
+        achievementsData,
+        interestsData,
+        cvBase64,
+        cvFileName: cvMetadata?.fileName,
+      };
+
+      const result = await saveToCodebaseApi(payload);
+      if (result.success) {
+        setCodebaseSavedSuccess(true);
+        setTimeout(() => setCodebaseSavedSuccess(false), 5000);
+        showToast('✓ Saved directly to src/data.ts! Changes are now permanent codebase defaults.');
+      } else {
+        downloadDataTsFile(payload);
+        showToast('Downloaded data.ts file! Replace src/data.ts to commit changes.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      showToast('Error saving to codebase: ' + (err.message || 'Unknown error'));
+    } finally {
+      setIsSavingCodebase(false);
+    }
+  };
+
+  const handleDownloadDataTs = async () => {
+    try {
+      const cvBase64 = await getCvBase64();
+      const payload = {
+        personalInfo,
+        skillsData,
+        projectCategories,
+        projectsData,
+        experienceData,
+        educationData,
+        achievementsData,
+        interestsData,
+        cvBase64,
+        cvFileName: cvMetadata?.fileName,
+      };
+      downloadDataTsFile(payload);
+      showToast('data.ts file generated and downloaded!');
+    } catch (err: any) {
+      console.error(err);
+      showToast('Error downloading data.ts');
+    }
   };
 
   // CV Upload state
@@ -628,6 +694,33 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-3">
+          <button
+            type="button"
+            onClick={handleSaveToCodebase}
+            disabled={isSavingCodebase}
+            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm cursor-pointer ${
+              codebaseSavedSuccess
+                ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                : 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/20 active:scale-95'
+            }`}
+            title="Write all changes directly into src/data.ts and public/ to make them permanent across all devices"
+          >
+            {isSavingCodebase ? (
+              <RefreshCw size={14} className="animate-spin" />
+            ) : codebaseSavedSuccess ? (
+              <Check size={14} className="text-emerald-300" />
+            ) : (
+              <Save size={14} />
+            )}
+            <span>
+              {isSavingCodebase
+                ? 'Saving to Codebase...'
+                : codebaseSavedSuccess
+                ? 'Saved to Codebase!'
+                : 'Save to Codebase'}
+            </span>
+          </button>
+
           <button
             onClick={() => onBackToPortfolio('/')}
             className="flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-zinc-800/80 hover:bg-zinc-700 text-zinc-300 hover:text-white text-xs font-medium transition-colors cursor-pointer"
@@ -1972,8 +2065,106 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                   <span>Data Backups & Factory Reset</span>
                 </h2>
                 <p className="text-xs text-zinc-400 mt-1">
-                  Export all your portfolio data to JSON, import a backup, or reset back to default initial values.
+                  Export all your portfolio data to JSON, save permanently to codebase, or reset back to default initial values.
                 </p>
+              </div>
+
+              {/* Codebase Synchronization & Multi-Device Deployment */}
+              <div className="p-6 rounded-2xl bg-gradient-to-br from-[#0e1422] to-[#0a0f1a] border border-yellow-500/30 shadow-xl space-y-5">
+                <div className="flex items-start justify-between">
+                  <div>
+                    <span className="inline-flex items-center space-x-1.5 px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-yellow-500/10 text-yellow-400 border border-yellow-500/30 mb-2">
+                      <Sparkles size={12} />
+                      <span>Multi-Device Persistence</span>
+                    </span>
+                    <h3 className="font-bold text-base text-white">Save Changes to Codebase (Deploy Everywhere)</h3>
+                    <p className="text-xs text-zinc-300 mt-1 max-w-2xl leading-relaxed">
+                      By default, changes made in this Admin Panel are saved inside your browser's <code className="text-yellow-400 bg-yellow-500/10 px-1 py-0.5 rounded font-mono text-[11px]">localStorage</code>, which only you can see on this device.
+                      Click <strong>"Save Directly to src/data.ts"</strong> to write all your projects, skills, categories, bio, timeline, and uploaded assets directly to your project codebase files.
+                      Once pushed to GitHub/Vercel, the whole world and all devices will see your updates!
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                  <button
+                    type="button"
+                    onClick={handleSaveToCodebase}
+                    disabled={isSavingCodebase}
+                    className={`flex items-center justify-center space-x-2 px-5 py-3 rounded-xl font-bold text-xs uppercase tracking-wider transition-all cursor-pointer shadow-lg ${
+                      codebaseSavedSuccess
+                        ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/50'
+                        : 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/20 active:scale-95'
+                    }`}
+                  >
+                    {isSavingCodebase ? (
+                      <RefreshCw size={16} className="animate-spin" />
+                    ) : codebaseSavedSuccess ? (
+                      <CheckCircle2 size={16} className="text-emerald-400" />
+                    ) : (
+                      <Save size={16} />
+                    )}
+                    <span>
+                      {isSavingCodebase
+                        ? 'Writing files...'
+                        : codebaseSavedSuccess
+                        ? 'Successfully Written to src/data.ts!'
+                        : 'Save Directly to src/data.ts'}
+                    </span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={handleDownloadDataTs}
+                    className="flex items-center justify-center space-x-2 px-5 py-3 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-200 font-semibold text-xs transition-colors cursor-pointer border border-zinc-700/60"
+                  >
+                    <Download size={16} />
+                    <span>Download updated data.ts</span>
+                  </button>
+                </div>
+
+                {/* Git Push Instructions */}
+                <div className="bg-[#050810] border border-zinc-800/80 rounded-xl p-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2 text-xs font-semibold text-zinc-300">
+                      <Terminal size={14} className="text-yellow-400" />
+                      <span>Deploy changes to GitHub / Vercel (Terminal):</span>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const cmd = 'git add src/data.ts public/\ngit commit -m "Update portfolio content via Admin Panel"\ngit push';
+                        navigator.clipboard.writeText(cmd);
+                        setCopiedGitCmd(true);
+                        setTimeout(() => setCopiedGitCmd(false), 3000);
+                        showToast('Git commands copied to clipboard!');
+                      }}
+                      className="flex items-center space-x-1.5 px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white text-[11px] font-mono transition-colors cursor-pointer"
+                    >
+                      {copiedGitCmd ? (
+                        <>
+                          <CheckCheck size={12} className="text-emerald-400" />
+                          <span className="text-emerald-400">Copied!</span>
+                        </>
+                      ) : (
+                        <>
+                          <Copy size={12} />
+                          <span>Copy Commands</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                  <pre className="text-xs font-mono text-zinc-400 bg-black/40 p-3 rounded-lg overflow-x-auto select-all">
+                    <code>
+                      git add src/data.ts public/<br />
+                      git commit -m "Update portfolio content via Admin Panel"<br />
+                      git push
+                    </code>
+                  </pre>
+                  <p className="text-[11px] text-zinc-500">
+                    💡 Once pushed to GitHub, Vercel/Netlify will automatically build and deploy your updated portfolio to all devices worldwide.
+                  </p>
+                </div>
               </div>
 
               <div className="p-6 rounded-2xl bg-[#090d14] border border-zinc-800 space-y-4">
