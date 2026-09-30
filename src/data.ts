@@ -17,7 +17,6 @@ export const personalInfo = {
   "portraitUrl": portraitImg,
   "linkedin": "https://www.linkedin.com/in/numan-a-79587628a",
   "github": "https://github.com/NumanAsghar901",
-  "medium": "https://medium.com/@numanasghar901",
   "summary": "Final-year Computer Science student specializing in the MERN Stack, Data Science, Machine Learning, and AI Agent Development. Experienced in building ML pipelines and AI-driven automation workflows using Python, n8n, and APIs. Proficient in full-stack web development with a focus on responsive and scalable applications. Passionate about combining intelligent systems with modern web technologies to solve real-world problems.",
   "brandName": "Numan",
   "aboutTitle": "Engineering With Passion While Exploring AI & Web.",
@@ -27,10 +26,10 @@ export const personalInfo = {
   "yearsExp": "02+",
   "projectsCount": "10+",
   "awardsCount": "03+",
-  "heroGreeting": "Hello, I'm Muhammad Numan Asghar 👋",
+  "heroGreeting": "Hello, I'm Numan Asghar 👋",
   "heroHeadline": "I DESIGN & BUILD DIGITAL EXPERIENCES",
   "heroHeadlinePrefix": "I DESIGN & BUILD",
-  "heroHeadlineHighlight": "DIGITAL EXPERIENCES "
+  "heroHeadlineHighlight": "DIGITAL EXPERIENCES"
 };
 
 export const skillsData: SkillCategory[] = [
@@ -147,7 +146,7 @@ export const skillsData: SkillCategory[] = [
 export const defaultProjectCategories: ProjectCategory[] = [
   {
     "id": "web",
-    "name": "MERN & Web",
+    "name": "Web Development",
     "iconName": "Code",
     "description": "Full-stack web applications & MERN development"
   },
@@ -172,6 +171,89 @@ export const defaultProjectCategories: ProjectCategory[] = [
 ];
 
 export const projectsData: Project[] = [
+  {
+    "id": "proj-1790786534343",
+    "title": "Lvlup Futures",
+    "subtitle": "Futures Trading Brand Platform",
+    "description": "A professional trading-focused website created for a futures trading brand, presenting its services, platform information, programs, and market-focused content through a modern responsive interface.",
+    "category": "web",
+    "categories": [
+      "web",
+      "freelance-projects"
+    ],
+    "tech": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS"
+    ],
+    "imageUrl": "/uploads/project-proj-1790786534343-1790788189732.jpg",
+    "liveUrl": "https://lvlupfutures.com/",
+    "githubUrl": ""
+  },
+  {
+    "id": "proj-1790786303431",
+    "title": "Cosmevo Cosmeceuticals",
+    "subtitle": "Beauty & Skincare Ecommerce Website",
+    "description": "A responsive cosmetics ecommerce website featuring product discovery, category browsing, animated page sections, cart management, and a polished shopping experience.",
+    "category": "web",
+    "categories": [
+      "web",
+      "freelance-projects"
+    ],
+    "tech": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Supabase",
+      "Nodemailer"
+    ],
+    "imageUrl": "/uploads/project-proj-1790786303431-1790788189733.jpg",
+    "liveUrl": "https://www.cosmevo.pk/",
+    "githubUrl": ""
+  },
+  {
+    "id": "proj-1790786102344",
+    "title": "Feel of Luxe ",
+    "subtitle": "Luxury Jewellery Ecommerce Website",
+    "description": "A premium jewellery ecommerce platform designed to showcase luxury jewellery collections with product browsing, detailed product pages, responsive layouts, cart functionality, and a refined visual experience.",
+    "category": "web",
+    "categories": [
+      "web",
+      "freelance-projects"
+    ],
+    "tech": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Tailwind CSS",
+      "Framer Motion"
+    ],
+    "imageUrl": "/uploads/project-proj-1790786102344-1790788189733.jpg",
+    "liveUrl": "https://www.feelofluxe.com/",
+    "githubUrl": ""
+  },
+  {
+    "id": "proj-1790785762993",
+    "title": "Comfort Studio",
+    "subtitle": "Modern Furniture Ecommerce Website",
+    "description": "A modern furniture ecommerce platform for browsing sofas, exploring product variants such as fabric, color, and size, adding items to a cart, and completing online purchases.",
+    "category": "web",
+    "categories": [
+      "web",
+      "freelance-projects"
+    ],
+    "tech": [
+      "Next.js",
+      "React",
+      "TypeScript",
+      "Node.js"
+    ],
+    "imageUrl": "/uploads/project-proj-1790785762993-1790788189733.jpg",
+    "liveUrl": "https://comfortstudio.co.uk/",
+    "githubUrl": ""
+  },
   {
     "id": "fast-academic-hub",
     "title": "FAST Academic Hub",
@@ -292,6 +374,16 @@ export const projectsData: Project[] = [
 
 export const experienceData: Experience[] = [
   {
+    "role": "Technical Advisor - Security & Platform Maintenance",
+    "company": "Monetro Prop Firm",
+    "companyUrl": "https://monetro.com/",
+    "period": "2026 – Present",
+    "bullets": [
+      "Directing platform health monitoring, uptime reliability, and long-term maintenance for web and mobile trading apps handling high-frequency trader operations.",
+      "Enforcing rigorous code review standards, secure deployment lifecycles, and risk-management safeguards to guarantee low-latency execution and transactional integrity."
+    ]
+  },
+  {
     "role": "Software Engineer",
     "company": "Prop Firm Studios",
     "companyUrl": "https://propfirmstudios.com",
@@ -333,7 +425,7 @@ export const experienceData: Experience[] = [
     ]
   },
   {
-    "role": "Teaching Assistant — Multivariable Calculus & Applied Calculus",
+    "role": "Teaching Assistant - Multivariable Calculus & Applied Calculus",
     "company": "FAST-NUCES",
     "period": "Sep 2024 – Jun 2026",
     "bullets": [
