@@ -40,7 +40,12 @@ import {
 import { usePortfolio } from '../context/PortfolioContext';
 import { Project, ProjectCategory, SkillCategory, Experience, Education, Achievement, Interest, Skill } from '../types';
 import { compressImage } from '../utils/imageOptimizer';
-import { saveToCodebaseApi, downloadDataTsFile, getCvBase64 } from '../utils/codebaseSync';
+import {
+  saveToCodebaseApi,
+  downloadDataTsFile,
+  getCvBase64,
+  testGitHubConnection,
+} from '../utils/codebaseSync';
 
 interface AdminPanelProps {
   onBackToPortfolio: (section?: string) => void;
@@ -92,6 +97,10 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
     reloadFromCodebase,
     exportDataJson,
     importDataJson,
+    isSyncing,
+    hasUnpublishedChanges,
+    lastSyncedAt,
+    saveToServer,
   } = usePortfolio();
 
   const [activeTab, setActiveTab] = useState<TabType>('hero');
@@ -108,35 +117,50 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
   const [copiedGitCmd, setCopiedGitCmd] = useState(false);
   const [githubToken, setGithubToken] = useState(() => localStorage.getItem('portfolio_github_token') || '');
   const [tokenSaved, setTokenSaved] = useState(false);
+  const [isTestingToken, setIsTestingToken] = useState(false);
+  const [testResult, setTestResult] = useState<{ success: boolean; message: string } | null>(null);
+
+  const handleTestConnection = async () => {
+    setIsTestingToken(true);
+    setTestResult(null);
+    try {
+      const res = await testGitHubConnection(githubToken);
+      setTestResult(res);
+      showToast(res.message);
+    } catch (err: any) {
+      setTestResult({ success: false, message: err?.message || 'Connection test failed.' });
+    } finally {
+      setIsTestingToken(false);
+    }
+  };
 
   const handleSaveToCodebase = async () => {
     setIsSavingCodebase(true);
     try {
-      const cvBase64 = await getCvBase64();
-      const payload = {
-        personalInfo,
-        skillsData,
-        projectCategories,
-        projectsData,
-        experienceData,
-        educationData,
-        achievementsData,
-        interestsData,
-        cvBase64,
-        cvFileName: cvMetadata?.fileName,
-      };
-
-      const result = await saveToCodebaseApi(payload, githubToken);
+      const result = await saveToServer(githubToken);
       if (result.success) {
         setCodebaseSavedSuccess(true);
         setTimeout(() => setCodebaseSavedSuccess(false), 5000);
-        showToast(result.message || '✓ Saved directly to codebase!');
+        showToast(result.message || '✓ Changes published live to Vercel deploy!');
       } else if (result.needsToken) {
         setActiveTab('settings');
         showToast('Please enter your GitHub Token below to enable automatic 1-click cloud sync on Vercel.');
       } else {
-        downloadDataTsFile(payload);
-        showToast('Downloaded data.ts file! Replace src/data.ts to commit changes.');
+        const cvBase64 = await getCvBase64();
+        downloadDataTsFile({
+          personalInfo,
+          skillsData,
+          projectCategories,
+          projectsData,
+          experienceData,
+          educationData,
+          achievementsData,
+          interestsData,
+          cvMetadata,
+          cvBase64,
+          cvFileName: cvMetadata?.fileName,
+        });
+        showToast(result.message || 'Downloaded data.ts file! Replace src/data.ts to commit changes.');
       }
     } catch (err: any) {
       console.error(err);
@@ -701,18 +725,40 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
         </div>
 
         <div className="flex items-center space-x-2 sm:space-x-3">
+          {/* Real-time Cloud Sync Status */}
+          <div className="hidden md:flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 border border-zinc-800 text-[11px]">
+            {isSyncing || isSavingCodebase ? (
+              <span className="flex items-center space-x-1.5 text-yellow-400">
+                <RefreshCw size={12} className="animate-spin" />
+                <span>Publishing to Vercel...</span>
+              </span>
+            ) : hasUnpublishedChanges ? (
+              <span className="flex items-center space-x-1.5 text-amber-400">
+                <span className="w-2 h-2 rounded-full bg-amber-400 animate-pulse" />
+                <span>Unpublished Changes</span>
+              </span>
+            ) : (
+              <span className="flex items-center space-x-1.5 text-emerald-400">
+                <CheckCircle2 size={12} />
+                <span>Live on Vercel</span>
+              </span>
+            )}
+          </div>
+
           <button
             type="button"
             onClick={handleSaveToCodebase}
-            disabled={isSavingCodebase}
-            className={`flex items-center space-x-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm cursor-pointer ${
+            disabled={isSavingCodebase || isSyncing}
+            className={`flex items-center space-x-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm cursor-pointer ${
               codebaseSavedSuccess
                 ? 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/40'
+                : hasUnpublishedChanges
+                ? 'bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-400 hover:to-yellow-400 text-black shadow-lg shadow-yellow-500/20 animate-pulse'
                 : 'bg-yellow-500 hover:bg-yellow-400 text-black shadow-yellow-500/20 active:scale-95'
             }`}
-            title="Write all changes directly into src/data.ts and public/ to make them permanent across all devices"
+            title="Publish all changes to live Vercel deployment so visitors see updates dynamically"
           >
-            {isSavingCodebase ? (
+            {isSavingCodebase || isSyncing ? (
               <RefreshCw size={14} className="animate-spin" />
             ) : codebaseSavedSuccess ? (
               <Check size={14} className="text-emerald-300" />
@@ -720,11 +766,13 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
               <Save size={14} />
             )}
             <span>
-              {isSavingCodebase
-                ? 'Saving to Codebase...'
+              {isSavingCodebase || isSyncing
+                ? 'Publishing Live...'
                 : codebaseSavedSuccess
-                ? 'Saved to Codebase!'
-                : 'Save to Codebase'}
+                ? 'Published Live!'
+                : hasUnpublishedChanges
+                ? 'Publish Changes Live'
+                : 'Publish to Live Site'}
             </span>
           </button>
 
@@ -2156,30 +2204,31 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                   </button>
                 </div>
 
-                {/* GitHub Cloud Direct Sync (For Vercel / Phone Editing) */}
-                <div className="bg-[#050810] border border-yellow-500/20 rounded-xl p-4 space-y-3">
-                  <div className="flex items-center justify-between">
+                {/* GitHub Cloud Direct Sync (For Vercel / Live Deployment) */}
+                <div className="bg-[#050810] border border-yellow-500/25 rounded-xl p-4 sm:p-5 space-y-3.5 shadow-lg">
+                  <div className="flex items-center justify-between flex-wrap gap-2">
                     <div className="flex items-center space-x-2">
-                      <Github size={16} className="text-yellow-400" />
-                      <span className="text-xs font-bold text-white">GitHub 1-Click Cloud Sync (For Mobile & Vercel)</span>
+                      <Github size={18} className="text-yellow-400" />
+                      <span className="text-sm font-bold text-white">Vercel Live Cloud Sync (GitHub Integration)</span>
                     </div>
                     <a
                       href="https://github.com/settings/tokens/new?scopes=repo&description=Portfolio+Admin+Sync"
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-[11px] text-yellow-400 hover:text-yellow-300 underline flex items-center space-x-1"
+                      className="text-xs text-yellow-400 hover:text-yellow-300 underline flex items-center space-x-1 font-semibold"
                     >
-                      <span>Generate Token</span>
-                      <ExternalLink size={10} />
+                      <span>Generate GitHub Token (pre-filled scopes)</span>
+                      <ExternalLink size={12} />
                     </a>
                   </div>
 
-                  <p className="text-[11px] text-zinc-400 leading-relaxed">
-                    Paste your GitHub Personal Access Token (classic with <code className="text-yellow-400">repo</code> scope) below.
-                    Once saved, clicking <strong>"Save to Codebase"</strong> from any device (phone, laptop, Vercel) commits directly to your GitHub repository and automatically deploys your updates live without downloading files!
+                  <p className="text-xs text-zinc-300 leading-relaxed">
+                    Paste your GitHub Personal Access Token (classic token with <code className="text-yellow-400 font-mono bg-yellow-500/10 px-1 py-0.5 rounded">repo</code> scope) below.
+                    Once saved, any change you make in this Admin Panel can be published directly to your live Vercel deploy with 1 click.
+                    Updates reflect dynamically for all visitors in real time!
                   </p>
 
-                  <div className="flex items-center space-x-2">
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                     <input
                       type="password"
                       value={githubToken}
@@ -2189,20 +2238,61 @@ export default function AdminPanel({ onBackToPortfolio, onLogout }: AdminPanelPr
                         localStorage.setItem('portfolio_github_token', val);
                       }}
                       placeholder="ghp_xxxxxxxxxxxxxxxxxxxx (GitHub PAT)"
-                      className="flex-1 px-3 py-2 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-zinc-100 font-mono focus:border-yellow-500 focus:outline-none"
+                      className="flex-1 px-3.5 py-2.5 rounded-lg bg-zinc-900 border border-zinc-700 text-xs text-zinc-100 font-mono focus:border-yellow-500 focus:outline-none"
                     />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        localStorage.setItem('portfolio_github_token', githubToken);
-                        setTokenSaved(true);
-                        setTimeout(() => setTokenSaved(false), 2500);
-                        showToast(githubToken ? 'GitHub Token saved!' : 'GitHub Token cleared.');
-                      }}
-                      className="px-3.5 py-2 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-semibold transition-colors cursor-pointer"
+                    <div className="flex items-center space-x-2">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          localStorage.setItem('portfolio_github_token', githubToken);
+                          setTokenSaved(true);
+                          setTimeout(() => setTokenSaved(false), 2500);
+                          showToast(githubToken ? '✓ GitHub Token saved!' : 'GitHub Token cleared.');
+                        }}
+                        className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-yellow-500 hover:bg-yellow-400 text-black text-xs font-semibold transition-colors cursor-pointer"
+                      >
+                        {tokenSaved ? 'Saved!' : 'Save Token'}
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handleTestConnection}
+                        disabled={isTestingToken || !githubToken}
+                        className="flex-1 sm:flex-none px-4 py-2.5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-200 text-xs font-semibold border border-zinc-700 transition-colors cursor-pointer disabled:opacity-50 flex items-center justify-center space-x-1.5"
+                      >
+                        {isTestingToken ? (
+                          <>
+                            <RefreshCw size={12} className="animate-spin" />
+                            <span>Testing...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles size={12} className="text-yellow-400" />
+                            <span>Test Connection</span>
+                          </>
+                        )}
+                      </button>
+                    </div>
+                  </div>
+
+                  {testResult && (
+                    <div
+                      className={`p-3 rounded-lg text-xs flex items-start space-x-2 border ${
+                        testResult.success
+                          ? 'bg-emerald-500/10 border-emerald-500/30 text-emerald-300'
+                          : 'bg-rose-500/10 border-rose-500/30 text-rose-300'
+                      }`}
                     >
-                      {tokenSaved ? 'Saved!' : 'Save Token'}
-                    </button>
+                      {testResult.success ? (
+                        <CheckCircle2 size={16} className="shrink-0 mt-0.5 text-emerald-400" />
+                      ) : (
+                        <X size={16} className="shrink-0 mt-0.5 text-rose-400" />
+                      )}
+                      <span className="leading-relaxed">{testResult.message}</span>
+                    </div>
+                  )}
+
+                  <div className="pt-1 text-[11px] text-zinc-400 border-t border-zinc-800/80">
+                    💡 <strong>Vercel Environment Variable (Optional):</strong> You can also add <code className="text-yellow-400 font-mono">GITHUB_TOKEN</code> directly in your Vercel Project Dashboard (<strong>Settings &gt; Environment Variables</strong>). That way, cloud sync works on your Vercel deployment even without entering a token in your browser!
                   </div>
                 </div>
 

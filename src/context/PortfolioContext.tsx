@@ -23,6 +23,12 @@ import {
   CODEBASE_DATA_VERSION,
 } from '../data';
 import { saveCvFile, getCvFile, deleteCvFile } from '../utils/cvStorage';
+import {
+  fetchDynamicPortfolioData,
+  saveToCodebaseApi,
+  getCvBase64,
+  CodebasePayload,
+} from '../utils/codebaseSync';
 
 const STORAGE_KEYS = {
   PERSONAL_INFO: 'portfolio_personal_info_v2',
@@ -96,6 +102,10 @@ interface PortfolioContextType {
   reloadFromCodebase: () => Promise<void>;
   exportDataJson: () => string;
   importDataJson: (json: string) => boolean;
+  isSyncing: boolean;
+  hasUnpublishedChanges: boolean;
+  lastSyncedAt: string | null;
+  saveToServer: (token?: string) => Promise<{ success: boolean; message: string; needsToken?: boolean }>;
 }
 
 const PortfolioContext = createContext<PortfolioContextType | null>(null);
@@ -228,6 +238,77 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
   const [cvMetadata, setCvMetadataState] = useState<CvMetadata | null>(() =>
     loadFromStorage(STORAGE_KEYS.CV_METADATA, null)
   );
+
+  const [isSyncing, setIsSyncing] = useState(false);
+  const [hasUnpublishedChanges, setHasUnpublishedChanges] = useState(false);
+  const [lastSyncedAt, setLastSyncedAt] = useState<string | null>(() =>
+    localStorage.getItem('portfolio_last_synced_at')
+  );
+
+  // Dynamic server data fetch on startup & background sync
+  useEffect(() => {
+    let isCancelled = false;
+
+    const fetchDynamicData = async () => {
+      try {
+        const data = await fetchDynamicPortfolioData();
+        if (isCancelled || !data) return;
+
+        if (data.personalInfo) {
+          setPersonalInfoState((prev) => {
+            const merged = { ...initialPersonalInfo, ...data.personalInfo };
+            safeSaveStorage(STORAGE_KEYS.PERSONAL_INFO, merged);
+            return merged;
+          });
+        }
+        if (Array.isArray(data.skillsData) && data.skillsData.length > 0) {
+          setSkillsDataState(data.skillsData);
+          safeSaveStorage(STORAGE_KEYS.SKILLS, data.skillsData);
+        }
+        if (Array.isArray(data.projectCategories) && data.projectCategories.length > 0) {
+          setProjectCategoriesState(data.projectCategories);
+          safeSaveStorage(STORAGE_KEYS.PROJECT_CATEGORIES, data.projectCategories);
+        }
+        if (Array.isArray(data.projectsData) && data.projectsData.length > 0) {
+          const norm = normalizeProjects(data.projectsData);
+          setProjectsDataState(norm);
+          safeSaveStorage(STORAGE_KEYS.PROJECTS, norm);
+        }
+        if (Array.isArray(data.experienceData) && data.experienceData.length > 0) {
+          setExperienceDataState(data.experienceData);
+          safeSaveStorage(STORAGE_KEYS.EXPERIENCE, data.experienceData);
+        }
+        if (Array.isArray(data.educationData) && data.educationData.length > 0) {
+          setEducationDataState(data.educationData);
+          safeSaveStorage(STORAGE_KEYS.EDUCATION, data.educationData);
+        }
+        if (Array.isArray(data.achievementsData) && data.achievementsData.length > 0) {
+          setAchievementsDataState(data.achievementsData);
+          safeSaveStorage(STORAGE_KEYS.ACHIEVEMENTS, data.achievementsData);
+        }
+        if (Array.isArray(data.interestsData) && data.interestsData.length > 0) {
+          setInterestsDataState(data.interestsData);
+          safeSaveStorage(STORAGE_KEYS.INTERESTS, data.interestsData);
+        }
+        if (data.cvMetadata) {
+          setCvMetadataState(data.cvMetadata);
+          safeSaveStorage(STORAGE_KEYS.CV_METADATA, data.cvMetadata);
+        }
+        if (data.updatedAt) {
+          setLastSyncedAt(data.updatedAt);
+          localStorage.setItem('portfolio_last_synced_at', data.updatedAt);
+        }
+      } catch (err) {
+        console.warn('Dynamic portfolio sync warning:', err);
+      }
+    };
+
+    fetchDynamicData();
+
+    return () => {
+      isCancelled = true;
+    };
+  }, []);
 
   // Synchronize across tabs and storage events
   useEffect(() => {
@@ -733,50 +814,172 @@ export const PortfolioProvider: React.FC<{ children: React.ReactNode }> = ({ chi
     }
   };
 
+  const saveToServer = async (customToken?: string) => {
+    setIsSyncing(true);
+    try {
+      const cvBase64 = await getCvBase64();
+      const payload: CodebasePayload = {
+        personalInfo,
+        skillsData,
+        projectCategories,
+        projectsData,
+        experienceData,
+        educationData,
+        achievementsData,
+        interestsData,
+        cvMetadata,
+        cvBase64,
+        cvFileName: cvMetadata?.fileName,
+      };
+
+      const result = await saveToCodebaseApi(payload, customToken);
+      if (result.success) {
+        setHasUnpublishedChanges(false);
+        const now = new Date().toISOString();
+        setLastSyncedAt(now);
+        localStorage.setItem('portfolio_last_synced_at', now);
+      }
+      return result;
+    } catch (err: any) {
+      return {
+        success: false,
+        message: err?.message || 'Failed to save to server.',
+        isApi: false,
+      };
+    } finally {
+      setIsSyncing(false);
+    }
+  };
+
   return (
     <PortfolioContext.Provider
       value={{
         personalInfo,
-        updatePersonalInfo,
+        updatePersonalInfo: (info) => {
+          setHasUnpublishedChanges(true);
+          updatePersonalInfo(info);
+        },
         skillsData,
-        addSkillCategory,
-        updateSkillCategory,
-        deleteSkillCategory,
-        addSkill,
-        updateSkill,
-        deleteSkill,
+        addSkillCategory: (cat) => {
+          setHasUnpublishedChanges(true);
+          addSkillCategory(cat);
+        },
+        updateSkillCategory: (i, cat) => {
+          setHasUnpublishedChanges(true);
+          updateSkillCategory(i, cat);
+        },
+        deleteSkillCategory: (i) => {
+          setHasUnpublishedChanges(true);
+          deleteSkillCategory(i);
+        },
+        addSkill: (ci, s) => {
+          setHasUnpublishedChanges(true);
+          addSkill(ci, s);
+        },
+        updateSkill: (ci, si, s) => {
+          setHasUnpublishedChanges(true);
+          updateSkill(ci, si, s);
+        },
+        deleteSkill: (ci, si) => {
+          setHasUnpublishedChanges(true);
+          deleteSkill(ci, si);
+        },
         projectsData,
-        addProject,
-        updateProject,
-        deleteProject,
+        addProject: (p) => {
+          setHasUnpublishedChanges(true);
+          addProject(p);
+        },
+        updateProject: (id, p) => {
+          setHasUnpublishedChanges(true);
+          updateProject(id, p);
+        },
+        deleteProject: (id) => {
+          setHasUnpublishedChanges(true);
+          deleteProject(id);
+        },
         projectCategories,
-        addProjectCategory,
-        updateProjectCategory,
-        deleteProjectCategory,
+        addProjectCategory: (c) => {
+          setHasUnpublishedChanges(true);
+          addProjectCategory(c);
+        },
+        updateProjectCategory: (id, c) => {
+          setHasUnpublishedChanges(true);
+          updateProjectCategory(id, c);
+        },
+        deleteProjectCategory: (id) => {
+          setHasUnpublishedChanges(true);
+          deleteProjectCategory(id);
+        },
         experienceData,
-        addExperience,
-        updateExperience,
-        deleteExperience,
+        addExperience: (e) => {
+          setHasUnpublishedChanges(true);
+          addExperience(e);
+        },
+        updateExperience: (i, e) => {
+          setHasUnpublishedChanges(true);
+          updateExperience(i, e);
+        },
+        deleteExperience: (i) => {
+          setHasUnpublishedChanges(true);
+          deleteExperience(i);
+        },
         educationData,
-        addEducation,
-        updateEducation,
-        deleteEducation,
+        addEducation: (e) => {
+          setHasUnpublishedChanges(true);
+          addEducation(e);
+        },
+        updateEducation: (i, e) => {
+          setHasUnpublishedChanges(true);
+          updateEducation(i, e);
+        },
+        deleteEducation: (i) => {
+          setHasUnpublishedChanges(true);
+          deleteEducation(i);
+        },
         achievementsData,
-        addAchievement,
-        updateAchievement,
-        deleteAchievement,
+        addAchievement: (a) => {
+          setHasUnpublishedChanges(true);
+          addAchievement(a);
+        },
+        updateAchievement: (i, a) => {
+          setHasUnpublishedChanges(true);
+          updateAchievement(i, a);
+        },
+        deleteAchievement: (i) => {
+          setHasUnpublishedChanges(true);
+          deleteAchievement(i);
+        },
         interestsData,
-        addInterest,
-        updateInterest,
-        deleteInterest,
+        addInterest: (it) => {
+          setHasUnpublishedChanges(true);
+          addInterest(it);
+        },
+        updateInterest: (i, it) => {
+          setHasUnpublishedChanges(true);
+          updateInterest(i, it);
+        },
+        deleteInterest: (i) => {
+          setHasUnpublishedChanges(true);
+          deleteInterest(i);
+        },
         cvMetadata,
-        uploadCv,
-        deleteCv,
+        uploadCv: async (f) => {
+          setHasUnpublishedChanges(true);
+          await uploadCv(f);
+        },
+        deleteCv: async () => {
+          setHasUnpublishedChanges(true);
+          await deleteCv();
+        },
         downloadCv,
         resetToDefaults,
         reloadFromCodebase,
         exportDataJson,
         importDataJson,
+        isSyncing,
+        hasUnpublishedChanges,
+        lastSyncedAt,
+        saveToServer,
       }}
     >
       {children}
