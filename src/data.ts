@@ -8,11 +8,11 @@ import invoiceGenImg from './assets/images/na-invoice-generator.png';
 import memoryGameImg from './assets/images/memory-matching-game.png';
 import industrialWebImg from './assets/images/industrial-website.png';
 
-export const CODEBASE_DATA_VERSION = '2026-09-30-v5-lvlup';
+export const CODEBASE_DATA_VERSION = '1794133285274';
 
 export const personalInfo = {
   "name": "Muhammad Numan Asghar",
-  "title": "Computer Science Student | FAST-NUCES",
+  "title": "Full Stack Developer at Monetro Prop Firm",
   "location": "FAST-NUCES, Faisalabad, Pakistan",
   "phone": "(+92) 326-1192066",
   "email": "numanasghar901@gmail.com",
