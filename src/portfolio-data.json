@@ -278,7 +278,7 @@
         "MongoDB",
         "Tailwind CSS"
       ],
-      "imageUrl": "/uploads/project-fast-academic-hub-1794133701153.jpg",
+      "imageUrl": "/uploads/project-fast-academic-hub-1794133745300.jpg",
       "liveUrl": "https://fast-academic-hub-nu.vercel.app/",
       "categories": [
         "web"
@@ -297,7 +297,7 @@
         "Pandas",
         "NumPy"
       ],
-      "imageUrl": "/src/assets/images/student-marks-prediction.png",
+      "imageUrl": "/uploads/project-student-marks-prediction-1794133746459.jpg",
       "liveUrl": "https://ds-marks-prediction.streamlit.app/",
       "githubUrl": "https://github.com/NumanAsghar901",
       "categories": [
@@ -355,7 +355,7 @@
         "jspdf",
         "Tailwind CSS"
       ],
-      "imageUrl": "/uploads/project-na-invoice-generator-1794133702271.jpg",
+      "imageUrl": "/uploads/project-na-invoice-generator-1794133747418.jpg",
       "liveUrl": "https://na-invoice-generator.vercel.app",
       "githubUrl": "https://github.com/NumanAsghar901",
       "categories": [
@@ -484,5 +484,5 @@
     }
   ],
   "cvMetadata": null,
-  "updatedAt": "2026-11-08T10:28:21.153Z"
+  "updatedAt": "2026-11-08T10:29:05.300Z"
 }
