@@ -8,7 +8,7 @@ import invoiceGenImg from './assets/images/na-invoice-generator.png';
 import memoryGameImg from './assets/images/memory-matching-game.png';
 import industrialWebImg from './assets/images/industrial-website.png';
 
-export const CODEBASE_DATA_VERSION = '1794133285274';
+export const CODEBASE_DATA_VERSION = '1794133426947';
 
 export const personalInfo = {
   "name": "Muhammad Numan Asghar",
@@ -174,6 +174,28 @@ export const defaultProjectCategories: ProjectCategory[] = [
 ];
 
 export const projectsData: Project[] = [
+  {
+    "id": "proj-1794133305299",
+    "title": "Feel of Luxe - Jewellery Ecommerce Website",
+    "subtitle": "Full-Stack E-commerce Website Development | Freelance Project",
+    "description": "Designed and developed a modern, premium jewellery e-commerce website for Feel of Luxe, delivering a seamless online shopping experience. Implemented product management, dynamic product listings, shopping cart functionality, secure authentication, and a responsive user interface. ",
+    "category": "web",
+    "categories": [
+      "web",
+      "freelance-projects"
+    ],
+    "tech": [
+      "Next.js",
+      "Node.js",
+      "Supabase",
+      "Cloudinary",
+      "JavaScript",
+      "Tailwind CSS"
+    ],
+    "imageUrl": "/uploads/project-proj-1794133305299-1794133425159.jpg",
+    "liveUrl": "https://www.feelofluxe.com/",
+    "githubUrl": ""
+  },
   {
     "id": "proj-1790786534343",
     "title": "Lvlup Futures",
