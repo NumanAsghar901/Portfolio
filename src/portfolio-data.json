@@ -374,7 +374,7 @@
         "JavaScript",
         "Tailwind CSS"
       ],
-      "imageUrl": "/src/assets/images/industrial-website.png",
+      "imageUrl": "/uploads/project-industrial-website-1794134059660.jpg",
       "liveUrl": "https://industral-website.vercel.app/",
       "githubUrl": "https://github.com/NumanAsghar901",
       "categories": [
@@ -484,5 +484,5 @@
     }
   ],
   "cvMetadata": null,
-  "updatedAt": "2026-11-08T10:31:36.079Z"
+  "updatedAt": "2026-11-08T10:34:19.659Z"
 }
