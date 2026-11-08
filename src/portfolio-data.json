@@ -1,13 +1,14 @@
 {
   "personalInfo": {
     "name": "Muhammad Numan Asghar",
-    "title": "Computer Science Student | FAST-NUCES",
+    "title": "Full Stack Developer at Monetro Prop Firm",
     "location": "FAST-NUCES, Faisalabad, Pakistan",
     "phone": "(+92) 326-1192066",
     "email": "numanasghar901@gmail.com",
     "portraitUrl": "/src/assets/images/im.png",
     "linkedin": "https://www.linkedin.com/in/numan-a-79587628a",
     "github": "https://github.com/NumanAsghar901",
+    "medium": "https://medium.com/@numanasghar901",
     "summary": "Final-year Computer Science student specializing in the MERN Stack, Data Science, Machine Learning, and AI Agent Development. Experienced in building ML pipelines and AI-driven automation workflows using Python, n8n, and APIs. Proficient in full-stack web development with a focus on responsive and scalable applications. Passionate about combining intelligent systems with modern web technologies to solve real-world problems.",
     "brandName": "Numan",
     "aboutTitle": "Engineering With Passion While Exploring AI & Web.",
@@ -20,8 +21,7 @@
     "heroGreeting": "Hello, I'm Numan Asghar 👋",
     "heroHeadline": "I DESIGN & BUILD DIGITAL EXPERIENCES",
     "heroHeadlinePrefix": "I DESIGN & BUILD",
-    "heroHeadlineHighlight": "DIGITAL EXPERIENCES",
-    "medium": "https://medium.com/@numanasghar901"
+    "heroHeadlineHighlight": "DIGITAL EXPERIENCES"
   },
   "skillsData": [
     {
@@ -461,5 +461,6 @@
       "iconName": "Server"
     }
   ],
-  "updatedAt": "2026-11-08T09:47:20.244Z"
+  "cvMetadata": null,
+  "updatedAt": "2026-11-08T10:21:24.345Z"
 }
