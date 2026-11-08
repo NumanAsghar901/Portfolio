@@ -8,7 +8,7 @@ import invoiceGenImg from './assets/images/na-invoice-generator.png';
 import memoryGameImg from './assets/images/memory-matching-game.png';
 import industrialWebImg from './assets/images/industrial-website.png';
 
-export const CODEBASE_DATA_VERSION = '1794133749481';
+export const CODEBASE_DATA_VERSION = '1794133861002';
 
 export const personalInfo = {
   "name": "Muhammad Numan Asghar",
