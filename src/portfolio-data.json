@@ -297,7 +297,7 @@
         "Pandas",
         "NumPy"
       ],
-      "imageUrl": "/uploads/project-student-marks-prediction-1794133746459.jpg",
+      "imageUrl": "/uploads/project-student-marks-prediction-1794133896080.jpg",
       "liveUrl": "https://ds-marks-prediction.streamlit.app/",
       "githubUrl": "https://github.com/NumanAsghar901",
       "categories": [
@@ -317,7 +317,7 @@
         "Pandas",
         "Seaborn"
       ],
-      "imageUrl": "/uploads/project-customer-churn-prediction-1794133868050.png",
+      "imageUrl": "/uploads/project-customer-churn-prediction-1794133897138.png",
       "githubUrl": "https://github.com/NumanAsghar901",
       "categories": [
         "ml"
@@ -484,5 +484,5 @@
     }
   ],
   "cvMetadata": null,
-  "updatedAt": "2026-11-08T10:31:08.050Z"
+  "updatedAt": "2026-11-08T10:31:36.079Z"
 }
