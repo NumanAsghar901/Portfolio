@@ -8,7 +8,7 @@ import invoiceGenImg from './assets/images/na-invoice-generator.png';
 import memoryGameImg from './assets/images/memory-matching-game.png';
 import industrialWebImg from './assets/images/industrial-website.png';
 
-export const CODEBASE_DATA_VERSION = '1794135383291';
+export const CODEBASE_DATA_VERSION = '1794563416916';
 
 export const personalInfo = {
   "name": "Muhammad Numan Asghar",
@@ -174,6 +174,28 @@ export const defaultProjectCategories: ProjectCategory[] = [
 ];
 
 export const projectsData: Project[] = [
+  {
+    "id": "proj-1794563289383",
+    "title": "Spotter AI - Truck Routing App",
+    "subtitle": "AI-Powered Weather Routing Platform | Full-Stack Development",
+    "description": "Spotter AI is an intelligent weather-aware routing platform designed to make route planning smarter and more informed. It combines route planning with weather intelligence to help users understand weather conditions relevant to their journeys.",
+    "category": "web",
+    "categories": [
+      "web",
+      "ai"
+    ],
+    "tech": [
+      "Vite",
+      "Python",
+      "Django",
+      "Redis",
+      "Upstash",
+      "Vercel"
+    ],
+    "imageUrl": "/uploads/project-proj-1794563289383-1794563414761.jpg",
+    "liveUrl": "https://spotter-ai-weather-routing-app.vercel.app/",
+    "githubUrl": "https://github.com/NumanAsghar901/Spotter-AI-Weather-Routing-App"
+  },
   {
     "id": "proj-1794133305299",
     "title": "Little Luxe Glow - Jewellery Ecommerce Website",
