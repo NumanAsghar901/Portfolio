@@ -161,6 +161,28 @@
   ],
   "projectsData": [
     {
+      "id": "proj-1794563289383",
+      "title": "Spotter AI - Truck Routing App",
+      "subtitle": "AI-Powered Weather Routing Platform | Full-Stack Development",
+      "description": "Spotter AI is an intelligent weather-aware routing platform designed to make route planning smarter and more informed. It combines route planning with weather intelligence to help users understand weather conditions relevant to their journeys.",
+      "category": "web",
+      "categories": [
+        "web",
+        "ai"
+      ],
+      "tech": [
+        "Vite",
+        "Python",
+        "Django",
+        "Redis",
+        "Upstash",
+        "Vercel"
+      ],
+      "imageUrl": "/uploads/project-proj-1794563289383-1794563414761.jpg",
+      "liveUrl": "https://spotter-ai-weather-routing-app.vercel.app/",
+      "githubUrl": "https://github.com/NumanAsghar901/Spotter-AI-Weather-Routing-App"
+    },
+    {
       "id": "proj-1794133305299",
       "title": "Little Luxe Glow - Jewellery Ecommerce Website",
       "subtitle": "Full-Stack E-commerce Website Development | Freelance Project",
@@ -488,5 +510,5 @@
     "fileSize": 249723,
     "updatedAt": "2026-11-08T10:56:18.708Z"
   },
-  "updatedAt": "2026-11-08T10:56:22.335Z"
+  "updatedAt": "2026-11-13T09:50:14.759Z"
 }
