@@ -8,7 +8,7 @@ import invoiceGenImg from './assets/images/na-invoice-generator.png';
 import memoryGameImg from './assets/images/memory-matching-game.png';
 import industrialWebImg from './assets/images/industrial-website.png';
 
-export const CODEBASE_DATA_VERSION = '1794563416916';
+export const CODEBASE_DATA_VERSION = '1794563470498';
 
 export const personalInfo = {
   "name": "Muhammad Numan Asghar",
@@ -192,7 +192,7 @@ export const projectsData: Project[] = [
       "Upstash",
       "Vercel"
     ],
-    "imageUrl": "/uploads/project-proj-1794563289383-1794563414761.jpg",
+    "imageUrl": "/uploads/project-proj-1794563289383-1794563468401.jpg",
     "liveUrl": "https://spotter-ai-weather-routing-app.vercel.app/",
     "githubUrl": "https://github.com/NumanAsghar901/Spotter-AI-Weather-Routing-App"
   },
